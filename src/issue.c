@@ -1,0 +1,505 @@
+#define _POSIX_C_SOURCE 200809L
+
+#include "issue.h"
+
+#include "storage.h"
+#include "util.h"
+
+#include <dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+struct wf_issue {
+    char id[65];
+    char *content;
+    char creator[128];
+    char status[16];
+    char approver[128];
+    char *approval_comment;
+    char created_at[32];
+    char updated_at[32];
+};
+
+static void wf_issue_free(struct wf_issue *issue)
+{
+    free(issue->content);
+    free(issue->approval_comment);
+    memset(issue, 0, sizeof(*issue));
+}
+
+static int wf_valid_status(const char *status)
+{
+    return wf_streq(status, "open") || wf_streq(status, "approved") || wf_streq(status, "rejected") ||
+           wf_streq(status, "closed") || wf_streq(status, "hold");
+}
+
+static int wf_issue_path(const struct wf_domain *domain, const char *id, char *path, size_t size)
+{
+    int written;
+
+    if (strstr(id, "/") != NULL || strlen(id) != 16) {
+        fprintf(stderr, "invalid issue id\n");
+        return 1;
+    }
+    written = snprintf(path, size, "%s/%s.tsv", domain->issues, id);
+    if (written < 0 || (size_t)written >= size) {
+        fprintf(stderr, "path too long\n");
+        return 1;
+    }
+    return 0;
+}
+
+static int wf_issue_comments_path(const struct wf_domain *domain, const char *id, char *path, size_t size)
+{
+    int written;
+
+    if (strstr(id, "/") != NULL || strlen(id) != 16) {
+        fprintf(stderr, "invalid issue id\n");
+        return 1;
+    }
+    written = snprintf(path, size, "%s/%s.comments.tsv", domain->issues, id);
+    if (written < 0 || (size_t)written >= size) {
+        fprintf(stderr, "path too long\n");
+        return 1;
+    }
+    return 0;
+}
+
+static int wf_issue_load(const struct wf_domain *domain, const char *id, struct wf_issue *issue)
+{
+    char path[PATH_MAX];
+    FILE *file;
+    char line[8192];
+    char *fields[8];
+    char *content = NULL;
+    char *approval = NULL;
+
+    memset(issue, 0, sizeof(*issue));
+    if (wf_issue_path(domain, id, path, sizeof(path)) != 0) {
+        return 1;
+    }
+    file = fopen(path, "r");
+    if (file == NULL) {
+        fprintf(stderr, "issue not found: %s\n", id);
+        return 1;
+    }
+    if (fgets(line, sizeof(line), file) == NULL) {
+        fclose(file);
+        fprintf(stderr, "corrupt issue: %s\n", id);
+        return 1;
+    }
+    fclose(file);
+    wf_trim_newline(line);
+    if (wf_split_tsv(line, fields, 8) != 8) {
+        fprintf(stderr, "corrupt issue: %s\n", id);
+        return 1;
+    }
+    if (wf_unescape_field(fields[1], &content) != 0 || wf_unescape_field(fields[5], &approval) != 0) {
+        free(content);
+        free(approval);
+        return 1;
+    }
+    snprintf(issue->id, sizeof(issue->id), "%s", fields[0]);
+    issue->content = content;
+    snprintf(issue->creator, sizeof(issue->creator), "%s", fields[2]);
+    snprintf(issue->status, sizeof(issue->status), "%s", fields[3]);
+    snprintf(issue->approver, sizeof(issue->approver), "%s", fields[4]);
+    issue->approval_comment = approval;
+    snprintf(issue->created_at, sizeof(issue->created_at), "%s", fields[6]);
+    snprintf(issue->updated_at, sizeof(issue->updated_at), "%s", fields[7]);
+    if (!wf_valid_status(issue->status)) {
+        fprintf(stderr, "corrupt issue status: %s\n", issue->status);
+        wf_issue_free(issue);
+        return 1;
+    }
+    return 0;
+}
+
+static int wf_issue_save(const struct wf_domain *domain, const struct wf_issue *issue)
+{
+    char path[PATH_MAX];
+    FILE *file;
+    char *content = NULL;
+    char *approval = NULL;
+    int rc = 0;
+
+    if (wf_issue_path(domain, issue->id, path, sizeof(path)) != 0) {
+        return 1;
+    }
+    if (wf_escape_field(issue->content, &content) != 0 || wf_escape_field(issue->approval_comment, &approval) != 0) {
+        free(content);
+        free(approval);
+        return 1;
+    }
+    if (wf_replace_file(path, &file) != 0) {
+        free(content);
+        free(approval);
+        return 1;
+    }
+    fprintf(file, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+            issue->id,
+            content,
+            issue->creator,
+            issue->status,
+            issue->approver,
+            approval,
+            issue->created_at,
+            issue->updated_at);
+    if (wf_commit_replace(path, file) != 0) {
+        rc = 1;
+    }
+    free(content);
+    free(approval);
+    return rc;
+}
+
+static int wf_issue_add_comment(const struct wf_domain *domain, const struct wf_user *user, const char *id, const char *comment)
+{
+    char path[PATH_MAX];
+    char timestamp[32];
+    char *escaped = NULL;
+    FILE *file;
+
+    if (wf_issue_comments_path(domain, id, path, sizeof(path)) != 0) {
+        return 1;
+    }
+    if (wf_time_now_iso(timestamp, sizeof(timestamp)) != 0 || wf_escape_field(comment, &escaped) != 0) {
+        free(escaped);
+        return 1;
+    }
+    file = fopen(path, "a");
+    if (file == NULL) {
+        perror(path);
+        free(escaped);
+        return 1;
+    }
+    fprintf(file, "%s\t%s\t%s\t%s\n", timestamp, user->username, wf_role_name(user->role), escaped);
+    free(escaped);
+    if (fclose(file) != 0) {
+        perror(path);
+        return 1;
+    }
+    return 0;
+}
+
+static int wf_issue_create(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    struct wf_issue issue;
+    char *content = NULL;
+    char id[17];
+
+    if (user->role != WF_ROLE_ASSISTANT) {
+        fprintf(stderr, "permission denied: only Assistant can create issues\n");
+        return 1;
+    }
+    if (wf_join_args(argc, argv, 2, &content) != 0) {
+        return 1;
+    }
+    if (wf_random_hex(id, 16) != 0) {
+        free(content);
+        return 1;
+    }
+    memset(&issue, 0, sizeof(issue));
+    snprintf(issue.id, sizeof(issue.id), "%s", id);
+    issue.content = content;
+    snprintf(issue.creator, sizeof(issue.creator), "%s", user->username);
+    snprintf(issue.status, sizeof(issue.status), "open");
+    issue.approver[0] = '\0';
+    issue.approval_comment = wf_strdup("");
+    if (issue.approval_comment == NULL) {
+        wf_issue_free(&issue);
+        fprintf(stderr, "out of memory\n");
+        return 1;
+    }
+    if (wf_time_now_iso(issue.created_at, sizeof(issue.created_at)) != 0) {
+        wf_issue_free(&issue);
+        return 1;
+    }
+    snprintf(issue.updated_at, sizeof(issue.updated_at), "%s", issue.created_at);
+    if (wf_issue_save(domain, &issue) != 0) {
+        wf_issue_free(&issue);
+        return 1;
+    }
+    printf("%s\n", issue.id);
+    wf_issue_free(&issue);
+    return 0;
+}
+
+static int wf_issue_list(const struct wf_domain *domain)
+{
+    DIR *dir;
+    struct dirent *entry;
+
+    dir = opendir(domain->issues);
+    if (dir == NULL) {
+        perror(domain->issues);
+        return 1;
+    }
+    while ((entry = readdir(dir)) != NULL) {
+        struct wf_issue issue;
+        size_t length = strlen(entry->d_name);
+        char id[65];
+
+        if (length <= 4 || strcmp(entry->d_name + length - 4, ".tsv") != 0 ||
+            strstr(entry->d_name, ".comments.tsv") != NULL) {
+            continue;
+        }
+        snprintf(id, sizeof(id), "%.*s", (int)(length - 4), entry->d_name);
+        if (wf_issue_load(domain, id, &issue) == 0) {
+            printf("%s\t%s\t%s\t%s\t%.60s\n", issue.id, issue.status, issue.creator, issue.updated_at, issue.content);
+            wf_issue_free(&issue);
+        }
+    }
+    closedir(dir);
+    return 0;
+}
+
+static int wf_issue_show(const struct wf_domain *domain, const char *id)
+{
+    struct wf_issue issue;
+
+    if (wf_issue_load(domain, id, &issue) != 0) {
+        return 1;
+    }
+    printf("id: %s\n", issue.id);
+    printf("status: %s\n", issue.status);
+    printf("creator: %s\n", issue.creator);
+    printf("approver: %s\n", issue.approver);
+    printf("approval_comment: %s\n", issue.approval_comment);
+    printf("created_at: %s\n", issue.created_at);
+    printf("updated_at: %s\n", issue.updated_at);
+    printf("content:\n%s\n", issue.content);
+    wf_issue_free(&issue);
+    return 0;
+}
+
+static int wf_issue_update(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    struct wf_issue issue;
+    char *content = NULL;
+
+    if (argc < 4) {
+        fprintf(stderr, "usage: wf issue update ISSUE_ID CONTENTS\n");
+        return 1;
+    }
+    if (wf_issue_load(domain, argv[2], &issue) != 0) {
+        return 1;
+    }
+    if (user->role != WF_ROLE_ASSISTANT || strcmp(issue.creator, user->username) != 0) {
+        wf_issue_free(&issue);
+        fprintf(stderr, "permission denied: Assistant can update own issues only\n");
+        return 1;
+    }
+    if (wf_join_args(argc, argv, 3, &content) != 0) {
+        wf_issue_free(&issue);
+        return 1;
+    }
+    free(issue.content);
+    issue.content = content;
+    wf_time_now_iso(issue.updated_at, sizeof(issue.updated_at));
+    if (wf_issue_save(domain, &issue) != 0) {
+        wf_issue_free(&issue);
+        return 1;
+    }
+    wf_issue_free(&issue);
+    return 0;
+}
+
+static int wf_issue_delete(const struct wf_domain *domain, const struct wf_user *user, const char *id)
+{
+    struct wf_issue issue;
+    char path[PATH_MAX];
+    char comments_path[PATH_MAX];
+
+    if (wf_issue_load(domain, id, &issue) != 0) {
+        return 1;
+    }
+    if (user->role != WF_ROLE_ASSISTANT || strcmp(issue.creator, user->username) != 0) {
+        wf_issue_free(&issue);
+        fprintf(stderr, "permission denied: Assistant can delete own issues only\n");
+        return 1;
+    }
+    wf_issue_free(&issue);
+    if (wf_issue_path(domain, id, path, sizeof(path)) != 0 ||
+        wf_issue_comments_path(domain, id, comments_path, sizeof(comments_path)) != 0) {
+        return 1;
+    }
+    if (unlink(path) != 0) {
+        perror(path);
+        return 1;
+    }
+    unlink(comments_path);
+    return 0;
+}
+
+static int wf_issue_set_status(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv, const char *status)
+{
+    struct wf_issue issue;
+    char *comment = NULL;
+
+    if (argc < 4) {
+        fprintf(stderr, "usage: wf issue %s ISSUE_ID COMMENT\n", argv[1]);
+        return 1;
+    }
+    if (user->role != WF_ROLE_USER) {
+        fprintf(stderr, "permission denied: only User can change approval status\n");
+        return 1;
+    }
+    if (wf_issue_load(domain, argv[2], &issue) != 0) {
+        return 1;
+    }
+    if (wf_join_args(argc, argv, 3, &comment) != 0) {
+        wf_issue_free(&issue);
+        return 1;
+    }
+    snprintf(issue.status, sizeof(issue.status), "%s", status);
+    snprintf(issue.approver, sizeof(issue.approver), "%s", user->username);
+    free(issue.approval_comment);
+    issue.approval_comment = comment;
+    wf_time_now_iso(issue.updated_at, sizeof(issue.updated_at));
+    if (wf_issue_save(domain, &issue) != 0 || wf_issue_add_comment(domain, user, issue.id, comment) != 0) {
+        wf_issue_free(&issue);
+        return 1;
+    }
+    wf_issue_free(&issue);
+    return 0;
+}
+
+static int wf_issue_comment_cmd(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    struct wf_issue issue;
+    char *comment = NULL;
+
+    if (argc < 4) {
+        fprintf(stderr, "usage: wf issue comment ISSUE_ID COMMENT\n");
+        return 1;
+    }
+    if (wf_issue_load(domain, argv[2], &issue) != 0) {
+        return 1;
+    }
+    wf_issue_free(&issue);
+    if (wf_join_args(argc, argv, 3, &comment) != 0) {
+        return 1;
+    }
+    if (wf_issue_add_comment(domain, user, argv[2], comment) != 0) {
+        free(comment);
+        return 1;
+    }
+    free(comment);
+    return 0;
+}
+
+static int wf_issue_comments(const struct wf_domain *domain, const char *id)
+{
+    char path[PATH_MAX];
+    FILE *file;
+    char line[8192];
+
+    if (wf_issue_comments_path(domain, id, path, sizeof(path)) != 0) {
+        return 1;
+    }
+    file = fopen(path, "r");
+    if (file == NULL) {
+        return 0;
+    }
+    while (fgets(line, sizeof(line), file) != NULL) {
+        char *fields[4];
+        char *comment = NULL;
+        wf_trim_newline(line);
+        if (wf_split_tsv(line, fields, 4) != 4) {
+            continue;
+        }
+        if (wf_unescape_field(fields[3], &comment) == 0) {
+            printf("%s\t%s\t%s\t%s\n", fields[0], fields[1], fields[2], comment);
+            free(comment);
+        }
+    }
+    fclose(file);
+    return 0;
+}
+
+static int wf_issue_search(const struct wf_domain *domain, int argc, char **argv)
+{
+    DIR *dir;
+    struct dirent *entry;
+    char *keyword;
+
+    if (wf_join_args(argc, argv, 2, &keyword) != 0) {
+        return 1;
+    }
+    dir = opendir(domain->issues);
+    if (dir == NULL) {
+        perror(domain->issues);
+        free(keyword);
+        return 1;
+    }
+    while ((entry = readdir(dir)) != NULL) {
+        struct wf_issue issue;
+        size_t length = strlen(entry->d_name);
+        char id[65];
+
+        if (length <= 4 || strcmp(entry->d_name + length - 4, ".tsv") != 0 ||
+            strstr(entry->d_name, ".comments.tsv") != NULL) {
+            continue;
+        }
+        snprintf(id, sizeof(id), "%.*s", (int)(length - 4), entry->d_name);
+        if (wf_issue_load(domain, id, &issue) == 0) {
+            if (strstr(issue.content, keyword) != NULL || strstr(issue.id, keyword) != NULL ||
+                strstr(issue.status, keyword) != NULL || strstr(issue.creator, keyword) != NULL) {
+                printf("%s\t%s\t%s\t%s\t%.60s\n", issue.id, issue.status, issue.creator, issue.updated_at, issue.content);
+            }
+            wf_issue_free(&issue);
+        }
+    }
+    closedir(dir);
+    free(keyword);
+    return 0;
+}
+
+int wf_issue_command(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    if (argc < 2) {
+        fprintf(stderr, "usage: wf issue COMMAND ...\n");
+        return 1;
+    }
+    if (wf_streq(argv[1], "create")) {
+        return wf_issue_create(domain, user, argc, argv);
+    }
+    if (wf_streq(argv[1], "list")) {
+        return wf_issue_list(domain);
+    }
+    if (wf_streq(argv[1], "show") && argc == 3) {
+        return wf_issue_show(domain, argv[2]);
+    }
+    if (wf_streq(argv[1], "update")) {
+        return wf_issue_update(domain, user, argc, argv);
+    }
+    if (wf_streq(argv[1], "delete") && argc == 3) {
+        return wf_issue_delete(domain, user, argv[2]);
+    }
+    if (wf_streq(argv[1], "approve")) {
+        return wf_issue_set_status(domain, user, argc, argv, "approved");
+    }
+    if (wf_streq(argv[1], "reject")) {
+        return wf_issue_set_status(domain, user, argc, argv, "rejected");
+    }
+    if (wf_streq(argv[1], "hold")) {
+        return wf_issue_set_status(domain, user, argc, argv, "hold");
+    }
+    if (wf_streq(argv[1], "resume")) {
+        return wf_issue_set_status(domain, user, argc, argv, "open");
+    }
+    if (wf_streq(argv[1], "comment")) {
+        return wf_issue_comment_cmd(domain, user, argc, argv);
+    }
+    if (wf_streq(argv[1], "comments") && argc == 3) {
+        return wf_issue_comments(domain, argv[2]);
+    }
+    if (wf_streq(argv[1], "search")) {
+        return wf_issue_search(domain, argc, argv);
+    }
+    fprintf(stderr, "unknown issue command: %s\n", argv[1]);
+    return 1;
+}
