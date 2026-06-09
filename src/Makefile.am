@@ -3,6 +3,8 @@ bin_PROGRAMS = wf
 wf_SOURCES = \
 	auth.c \
 	auth.h \
+	cmd.c \
+	cmd.h \
 	domain.c \
 	domain.h \
 	issue.c \
