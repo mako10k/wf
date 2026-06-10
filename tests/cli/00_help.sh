@@ -35,6 +35,8 @@ echo "=== wf help COMMAND routes to command help ==="
 
 echo "=== wf COMMAND --help works for top-level commands ==="
 "$WF" exec --help 2>&1 | grep -q "usage: wf exec \[USERNAME\]"
+"$WF" exec --help 2>&1 | grep -q "prints a start banner to stderr"
+"$WF" exec --help 2>&1 | grep -q "WF_EXEC_DOMAIN (domain id)"
 "$WF" env --help 2>&1 | grep -q "usage: wf env COMMAND"
 "$WF" version --help 2>&1 | grep -q "usage: wf version"
 "$WF" issue --help 2>&1 | grep -q "usage: wf issue COMMAND"

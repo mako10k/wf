@@ -60,15 +60,21 @@ echo "=== bare exec starts a shell-like child and still cleans it up afterwards 
 cat > "$TESTROOT/fake-shell.sh" <<'EOF'
 #!/bin/sh
 printf 'WF_TOKEN=%s\n' "$WF_TOKEN"
+printf 'WF_EXEC_USER=%s\n' "$WF_EXEC_USER"
+printf 'WF_EXEC_DOMAIN=%s\n' "$WF_EXEC_DOMAIN"
 exit 0
 EOF
 chmod +x "$TESTROOT/fake-shell.sh"
-out=$(SHELL="$TESTROOT/fake-shell.sh" "$WF" exec assistant)
+out=$(SHELL="$TESTROOT/fake-shell.sh" "$WF" exec assistant 2>"$TESTROOT/exec-banner.err")
 token=$(printf '%s\n' "$out" | sed -n "s/^WF_TOKEN=\([0-9a-f][0-9a-f]*\)$/\1/p")
 if [ -z "$token" ]; then
   echo "FAIL: expected bare exec child to inherit WF_TOKEN" >&2
   exit 1
 fi
+printf '%s\n' "$out" | grep -q '^WF_EXEC_USER=assistant$'
+printf '%s\n' "$out" | grep -q '^WF_EXEC_DOMAIN='
+grep -q '^wf exec shell: user=assistant domain=' "$TESTROOT/exec-banner.err"
+grep -q '^wf exec shell returned: user=assistant domain=.* exit=0$' "$TESTROOT/exec-banner.err"
 if grep -q "^$token	assistant	Assistant$" "$DOMAIN_ROOT/sessions.tsv"; then
   echo "FAIL: bare exec left its temporary session behind" >&2
   exit 1

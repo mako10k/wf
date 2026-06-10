@@ -58,6 +58,11 @@ static void wf_print_exec_usage(FILE *fp)
 {
     fprintf(fp, "usage: wf exec [USERNAME] [-- COMMAND [ARGS...]]\n");
     fprintf(fp, "       wf exec -- COMMAND [ARGS...]\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "Interactive shell mode (no COMMAND):\n");
+    fprintf(fp, "  - prints a start banner to stderr when the shell begins\n");
+    fprintf(fp, "  - prints a return banner to stderr after the shell exits\n");
+    fprintf(fp, "  - exports WF_EXEC_USER and WF_EXEC_DOMAIN (domain id)\n");
 }
 
 static void wf_print_env_usage(FILE *fp)
@@ -233,6 +238,7 @@ static void wf_print_usecases(FILE *fp)
     fprintf(fp, "      wf issue list\n");
     fprintf(fp, "      wf issue show <id>\n");
     fprintf(fp, "      wf issue approve <id> \"looks good\"\n");
+    fprintf(fp, "      # wf exec also exports WF_EXEC_USER and WF_EXEC_DOMAIN\n");
     fprintf(fp, "\n");
     fprintf(fp, "  Export environment into the current shell:\n");
     fprintf(fp, "      eval \"$(wf env export assistant)\"\n");

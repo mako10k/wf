@@ -269,6 +269,19 @@ static int wf_auth_remove_session_token(const struct wf_domain *domain, const ch
     return 0;
 }
 
+static int wf_auth_prepare_exec_shell_env(const struct wf_domain *domain, const char *username)
+{
+    if (setenv("WF_EXEC_USER", username, 1) != 0) {
+        perror("setenv");
+        return 1;
+    }
+    if (setenv("WF_EXEC_DOMAIN", domain->id, 1) != 0) {
+        perror("setenv");
+        return 1;
+    }
+    return 0;
+}
+
 int wf_auth_env_export(const struct wf_domain *domain, const char *username)
 {
     char token[65];
@@ -321,6 +334,10 @@ int wf_auth_exec(const struct wf_domain *domain, const char *username, int argc,
             if (shell == NULL || shell[0] == '\0') {
                 shell = "/bin/sh";
             }
+            if (wf_auth_prepare_exec_shell_env(domain, username) != 0) {
+                _exit(1);
+            }
+            fprintf(stderr, "wf exec shell: user=%s domain=%s\n", username, domain->id);
             execl(shell, shell, "-i", (char *)NULL);
             perror(shell);
             _exit(127);
@@ -333,6 +350,16 @@ int wf_auth_exec(const struct wf_domain *domain, const char *username, int argc,
     do {
         wait_rc = waitpid(child, &status, 0);
     } while (wait_rc < 0 && errno == EINTR);
+
+    if (wait_rc >= 0 && argc == 0) {
+        if (WIFEXITED(status)) {
+            fprintf(stderr, "wf exec shell returned: user=%s domain=%s exit=%d\n", username, domain->id, WEXITSTATUS(status));
+        } else if (WIFSIGNALED(status)) {
+            fprintf(stderr, "wf exec shell returned: user=%s domain=%s signal=%d\n", username, domain->id, WTERMSIG(status));
+        } else {
+            fprintf(stderr, "wf exec shell returned: user=%s domain=%s\n", username, domain->id);
+        }
+    }
 
     clear_rc = wf_auth_remove_session_token(domain, token);
     if (wait_rc < 0) {

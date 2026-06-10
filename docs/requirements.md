@@ -139,6 +139,9 @@ Rules:
 - `wf exec assistant` / `wf env export assistant` may auto-register the default Assistant if it does not exist.
 - `wf env clear` prints shell code that removes `WF_TOKEN`.
 - `wf exec` requires `--` before a child command. Without a child command it starts an interactive shell.
+- Interactive `wf exec` prints a one-line banner to stderr when the shell starts and another when the shell exits and control returns to `wf`.
+- Interactive `wf exec` exports `WF_EXEC_USER` and `WF_EXEC_DOMAIN` for shell-side opt-in customizations.
+- `WF_EXEC_DOMAIN` contains the current domain id, not a path or human-readable label.
 - `wf exec` creates a temporary session, runs one command or one interactive shell, then removes that session automatically when the child process exits.
 
 Command abbreviation:
