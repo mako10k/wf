@@ -258,6 +258,7 @@ int wf_domain_delete(const char *id_or_short)
        If id_or_short is NULL or empty, we can error or require explicit. */
     if (id_or_short == NULL || id_or_short[0] == '\0') {
         fprintf(stderr, "usage: wf domain delete <id|short-id>\n");
+        fprintf(stderr, "See 'wf help semantics' for how domain IDs and short prefixes work.\n");
         return 1;
     }
 
@@ -296,10 +297,10 @@ int wf_domain_delete(const char *id_or_short)
         if (res == WF_MATCH_EXACT || res == WF_MATCH_PREFIX) {
             snprintf(full_id, sizeof(full_id), "%s", matched);
         } else if (res == WF_MATCH_AMBIGUOUS) {
-            fprintf(stderr, "ambiguous domain id: %s\n", id_or_short);
+            fprintf(stderr, "ambiguous domain id: %s. See 'wf help semantics'.\n", id_or_short);
             return 1;
         } else {
-            fprintf(stderr, "domain not found: %s\n", id_or_short);
+            fprintf(stderr, "domain not found: %s. See 'wf help concepts' (domain section).\n", id_or_short);
             return 1;
         }
     }
@@ -314,7 +315,7 @@ int wf_domain_delete(const char *id_or_short)
         return 1;
     }
     if (access(pathfile, F_OK) != 0) {
-        fprintf(stderr, "refusing to delete: %s does not look like a wf domain\n", root);
+        fprintf(stderr, "refusing to delete: %s does not look like a wf domain. See 'wf help concepts'.\n", root);
         return 1;
     }
 

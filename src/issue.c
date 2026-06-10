@@ -88,7 +88,7 @@ int wf_issue_resolve_id(const struct wf_domain *domain, const char *partial, cha
         return 1;
     }
     if (plen < 2) {
-        fprintf(stderr, "issue id too short (minimum 2 characters)\n");
+        fprintf(stderr, "issue id too short (minimum 2 characters). See 'wf help semantics'.\n");
         return 1;
     }
 
@@ -124,10 +124,10 @@ int wf_issue_resolve_id(const struct wf_domain *domain, const char *partial, cha
         return 0;
     }
     if (res == WF_MATCH_AMBIGUOUS) {
-        fprintf(stderr, "ambiguous issue id: %s\n", partial);
+        fprintf(stderr, "ambiguous issue id: %s. See 'wf help semantics'.\n", partial);
         return 1;
     }
-    fprintf(stderr, "issue not found: %s\n", partial);
+    fprintf(stderr, "issue not found: %s. See 'wf help semantics'.\n", partial);
     return 1;
 }
 
@@ -556,18 +556,23 @@ void wf_issue_usage(FILE *fp)
     fprintf(fp, "usage: wf issue COMMAND [ARGS...]\n");
     fprintf(fp, "  (COMMAND may be abbreviated to a unique prefix.)\n");
     fprintf(fp, "  ISSUE_ID may be abbreviated to a unique prefix of 2 or more characters.\n");
+    fprintf(fp, "\n");
     fprintf(fp, "  wf issue create CONTENTS\n");
     fprintf(fp, "  wf issue list\n");
     fprintf(fp, "  wf issue show ISSUE_ID\n");
     fprintf(fp, "  wf issue update ISSUE_ID CONTENTS\n");
     fprintf(fp, "  wf issue delete ISSUE_ID\n");
+    fprintf(fp, "\n");
     fprintf(fp, "  wf issue approve ISSUE_ID COMMENT\n");
     fprintf(fp, "  wf issue reject ISSUE_ID COMMENT\n");
     fprintf(fp, "  wf issue hold ISSUE_ID COMMENT\n");
     fprintf(fp, "  wf issue resume ISSUE_ID COMMENT\n");
+    fprintf(fp, "\n");
     fprintf(fp, "  wf issue comment ISSUE_ID COMMENT\n");
     fprintf(fp, "  wf issue comments ISSUE_ID\n");
     fprintf(fp, "  wf issue search KEYWORD\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "See 'wf help concepts' for the meaning of roles and ISSUE_ID abbreviation.\n");
 }
 
 static int ic_create(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
@@ -695,12 +700,12 @@ int wf_issue_command(const struct wf_domain *domain, const struct wf_user *user,
     }
 
     if (res == WF_MATCH_AMBIGUOUS) {
-        fprintf(stderr, "ambiguous issue command: %s\n", argv[1]);
+        fprintf(stderr, "ambiguous issue command: %s. See 'wf help semantics'.\n", argv[1]);
         wf_issue_usage(stderr);
         return 1;
     }
 
-    fprintf(stderr, "unknown issue command: %s\n", argv[1]);
+    fprintf(stderr, "unknown issue command: %s. See 'wf help semantics' or 'wf help concepts'.\n", argv[1]);
     wf_issue_usage(stderr);
     return 1;
 }

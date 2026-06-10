@@ -8,32 +8,132 @@
 
 #include <stdio.h>
 
-static void wf_usage(FILE *fp, const char *program_name)
+static void wf_print_overview(FILE *fp, const char *program_name)
 {
     fprintf(fp, "usage: %s COMMAND [ARGS...]\n", program_name);
-    fprintf(fp, "  (COMMAND may be abbreviated to a unique prefix; same for 'issue' subcommands.)\n");
-    fprintf(fp, "  (ISSUE_ID may be abbreviated to a unique prefix of 2 or more characters.)\n");
-    fprintf(fp, "  wf passwd [USERNAME]\n");
-    fprintf(fp, "  wf passwd USERNAME Assistant\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "Groups:\n");
+    fprintf(fp, "  auth                  user/assistant registration and session management\n");
+    fprintf(fp, "  issue                 create, inspect and advance issues\n");
+    fprintf(fp, "  domain                inspect and manage domain roots\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "Commands:\n");
+    fprintf(fp, "  wf passwd [USERNAME] [User|Assistant]\n");
     fprintf(fp, "  wf login [USERNAME]\n");
     fprintf(fp, "  wf logout\n");
-    fprintf(fp, "  wf issue create CONTENTS\n");
-    fprintf(fp, "  wf issue list\n");
-    fprintf(fp, "  wf issue show ISSUE_ID\n");
-    fprintf(fp, "  wf issue update ISSUE_ID CONTENTS\n");
-    fprintf(fp, "  wf issue delete ISSUE_ID\n");
-    fprintf(fp, "  wf issue approve ISSUE_ID COMMENT\n");
-    fprintf(fp, "  wf issue reject ISSUE_ID COMMENT\n");
-    fprintf(fp, "  wf issue hold ISSUE_ID COMMENT\n");
-    fprintf(fp, "  wf issue resume ISSUE_ID COMMENT\n");
-    fprintf(fp, "  wf issue comment ISSUE_ID COMMENT\n");
-    fprintf(fp, "  wf issue comments ISSUE_ID\n");
-    fprintf(fp, "  wf issue search KEYWORD\n");
-    fprintf(fp, "  wf domain create\n");
-    fprintf(fp, "  wf domain delete <id|short>\n");
-    fprintf(fp, "  wf domain ls\n");
-    fprintf(fp, "  wf domain current\n");
-    fprintf(fp, "  wf domain status\n");
+    fprintf(fp, "  wf issue COMMAND ...\n");
+    fprintf(fp, "  wf domain COMMAND ...\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "Help:\n");
+    fprintf(fp, "  wf help [COMMAND|TOPIC]\n");
+    fprintf(fp, "  wf COMMAND --help\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "Topics: concepts, semantics, usecases\n");
+}
+
+static void wf_print_concepts(FILE *fp);
+static void wf_print_semantics(FILE *fp);
+static void wf_print_usecases(FILE *fp);
+
+static void wf_help(FILE *fp, const char *topic)
+{
+    if (topic == NULL || wf_streq(topic, "help") || wf_streq(topic, "--help") ||
+        wf_streq(topic, "-h") || wf_streq(topic, "overview")) {
+        wf_print_overview(fp, "wf");
+        return;
+    }
+
+    if (wf_streq(topic, "concepts")) {
+        wf_print_concepts(fp);
+        return;
+    }
+    if (wf_streq(topic, "semantics")) {
+        wf_print_semantics(fp);
+        return;
+    }
+    if (wf_streq(topic, "usecases") || wf_streq(topic, "examples")) {
+        wf_print_usecases(fp);
+        return;
+    }
+
+    /* command-specific help is handled by the individual cmd_* functions */
+    fprintf(fp, "No detailed help for topic '%s'. Try 'wf help concepts' or 'wf help semantics'.\n", topic);
+}
+
+static void wf_print_concepts(FILE *fp)
+{
+    fprintf(fp, "Concepts:\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  domain:\n");
+    fprintf(fp, "      An isolation boundary. The domain is derived from the current\n");
+    fprintf(fp, "      working directory (SHA-256 of \"wf:<realpath>\"). All data\n");
+    fprintf(fp, "      (users, sessions, issues) for that directory lives under\n");
+    fprintf(fp, "      $XDG_DATA_HOME/wf/domains/<64hex-id>/. Different directories\n");
+    fprintf(fp, "      normally get different domains unless they share the same path\n");
+    fprintf(fp, "      hash. Use 'wf domain ls' to see registered domains and\n");
+    fprintf(fp, "      'WF_DOMAIN=shortid ...' to operate on a non-current domain.\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  actor / role:\n");
+    fprintf(fp, "      User     - human approver. Requires TTY password on login.\n");
+    fprintf(fp, "                 Can read issues, comment, and change status\n");
+    fprintf(fp, "                 (approve/reject/hold/resume).\n");
+    fprintf(fp, "      Assistant- AI / automation. No password. Can create issues and\n");
+    fprintf(fp, "                 update/delete its own issues. Can also comment.\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  issue:\n");
+    fprintf(fp, "      The central work item. Has a 16-hex ID, content, creator,\n");
+    fprintf(fp, "      status, approver and comments. Status lifecycle is managed\n");
+    fprintf(fp, "      by Users; creation and self-updates are done by Assistants.\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  abbreviation:\n");
+    fprintf(fp, "      Both top-level COMMANDs and 'issue' subcommands support\n");
+    fprintf(fp, "      unique prefix matching (exact match wins). ISSUE_IDs support\n");
+    fprintf(fp, "      unique prefixes of 2 or more characters.\n");
+    fprintf(fp, "      Ambiguous input produces a clear error and the relevant usage.\n");
+}
+
+static void wf_print_semantics(FILE *fp)
+{
+    fprintf(fp, "Semantics:\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  COMMAND\n");
+    fprintf(fp, "      Top-level command. May be abbreviated to a unique prefix\n");
+    fprintf(fp, "      (e.g. 'logi' for 'login', 'i' for 'issue').\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  ISSUE_ID\n");
+    fprintf(fp, "      16-character hex identifier of an issue. May be given as a\n");
+    fprintf(fp, "      unique prefix of 2 or more characters. The resolver reports\n");
+    fprintf(fp, "      'too short', 'ambiguous issue id' or 'issue not found'.\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  DOMAIN selection\n");
+    fprintf(fp, "      By default the domain is computed from the current working\n");
+    fprintf(fp, "      directory. You can force another domain with the environment\n");
+    fprintf(fp, "      variable WF_DOMAIN (full id or unique short prefix).\n");
+    fprintf(fp, "      See also 'wf domain ls' and 'wf domain current'.\n");
+}
+
+static void wf_print_usecases(FILE *fp)
+{
+    fprintf(fp, "Common usecases:\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  Register an Assistant (no password):\n");
+    fprintf(fp, "      wf passwd assistant Assistant\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  Login as Assistant and create an issue:\n");
+    fprintf(fp, "      eval \"$(wf login assistant)\"\n");
+    fprintf(fp, "      wf issue create \"fix the thing\"\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  As a User, review and approve:\n");
+    fprintf(fp, "      eval \"$(wf login)\"\n");
+    fprintf(fp, "      wf issue list\n");
+    fprintf(fp, "      wf issue show <id>\n");
+    fprintf(fp, "      wf issue approve <id> \"looks good\"\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  Work with a different directory's domain without cd:\n");
+    fprintf(fp, "      WF_DOMAIN=8bae3411 wf issue list\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  See all known domains:\n");
+    fprintf(fp, "      wf domain ls\n");
 }
 
 static int cmd_passwd(const struct wf_domain *domain, int argc, char **argv)
@@ -79,6 +179,13 @@ static int cmd_issue(const struct wf_domain *domain, int argc, char **argv)
 
     /* Allow showing issue subcommand help without being logged in. */
     if (argc >= 1 && (wf_streq(argv[0], "help") || wf_streq(argv[0], "--help") || wf_streq(argv[0], "-h"))) {
+        if (argc >= 2) {
+            const char *t = argv[1];
+            if (wf_streq(t, "concepts") || wf_streq(t, "semantics") || wf_streq(t, "usecases")) {
+                wf_help(stdout, t);
+                return 0;
+            }
+        }
         wf_issue_usage(stdout);
         return 0;
     }
@@ -96,6 +203,13 @@ static int cmd_domain(const struct wf_domain *domain, int argc, char **argv)
     const char *sub = (argc >= 1 ? argv[0] : NULL);
 
     if (sub == NULL || wf_streq(sub, "help") || wf_streq(sub, "--help") || wf_streq(sub, "-h")) {
+        if (argc >= 2) {
+            const char *topic = argv[1];
+            if (wf_streq(topic, "concepts") || wf_streq(topic, "semantics") || wf_streq(topic, "usecases")) {
+                wf_help(stdout, topic);
+                return 0;
+            }
+        }
         fprintf(stdout,
             "usage: wf domain COMMAND\n"
             "  wf domain create\n"
@@ -103,6 +217,7 @@ static int cmd_domain(const struct wf_domain *domain, int argc, char **argv)
             "  wf domain ls\n"
             "  wf domain current\n"
             "  wf domain status\n");
+        fprintf(stdout, "\nSee 'wf help concepts' (domain section) and 'wf help semantics'.\n");
         return (sub == NULL ? 1 : 0);
     }
 
@@ -113,11 +228,11 @@ static int cmd_domain(const struct wf_domain *domain, int argc, char **argv)
         enum wf_match_result mres = wf_match_prefix(domsubs, sub, &matched);
 
         if (mres == WF_MATCH_AMBIGUOUS) {
-            fprintf(stderr, "ambiguous domain command: %s\n", sub);
+            fprintf(stderr, "ambiguous domain command: %s. See 'wf help semantics'.\n", sub);
             return 1;
         }
         if (mres != WF_MATCH_EXACT && mres != WF_MATCH_PREFIX) {
-            fprintf(stderr, "unknown domain command: %s\n", sub);
+            fprintf(stderr, "unknown domain command: %s. See 'wf help concepts'.\n", sub);
             return 1;
         }
 
@@ -163,7 +278,12 @@ int main(int argc, char **argv)
     }
 
     if (argc < 2 || wf_streq(argv[1], "help") || wf_streq(argv[1], "--help") || wf_streq(argv[1], "-h")) {
-        wf_usage(argc < 2 ? stderr : stdout, argv[0]);
+        if (argc >= 3) {
+            /* wf help <topic> */
+            wf_help((argc < 2 ? stderr : stdout), argv[2]);
+        } else {
+            wf_help((argc < 2 ? stderr : stdout), NULL);
+        }
         return argc < 2 ? 1 : 0;
     }
 
@@ -174,12 +294,12 @@ int main(int argc, char **argv)
     }
 
     if (res == WF_MATCH_AMBIGUOUS) {
-        fprintf(stderr, "ambiguous command: %s\n", argv[1]);
-        wf_usage(stderr, argv[0]);
+        fprintf(stderr, "ambiguous command: %s. See 'wf help' or 'wf help concepts'.\n", argv[1]);
+        wf_help(stderr, NULL);
         return 1;
     }
 
-    fprintf(stderr, "unknown command: %s\n", argv[1]);
-    wf_usage(stderr, argv[0]);
+    fprintf(stderr, "unknown command: %s. See 'wf help' or 'wf help concepts'.\n", argv[1]);
+    wf_help(stderr, NULL);
     return 1;
 }
