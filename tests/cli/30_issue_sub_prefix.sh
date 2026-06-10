@@ -1,6 +1,6 @@
 #!/bin/sh
 # Issue subcommand prefix matching + ISSUE_ID prefix resolution.
-# Requires being able to create a temporary domain and fake a login.
+# Requires being able to create a temporary domain and fake a session.
 
 set -e
 WF=${WF:-../../src/wf}
@@ -51,8 +51,8 @@ printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
   "$ID2" "second issue content" "assistant" "open" "" "" "2026-01-01T00:00:00Z" "2026-01-01T00:00:00Z" \
   > "$ISSUES/$ID2.tsv"
 
-printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
-  "$ID3" "third issue content" "assistant" "open" "" "" "2026-01-01T00:00:00Z" "2026-01-01T00:00:00Z" \
+printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+  "$ID3" "third issue content" "assistant" "open" "" "none" "" "none" "none" "none" "" "" "2026-01-01T00:00:00Z" "2026-01-01T00:00:00Z" \
   > "$ISSUES/$ID3.tsv"
 
 echo "=== issue subcommand prefix: 'li' for list ==="
@@ -76,6 +76,9 @@ echo "=== 4-char '0123' is unique to ID1 ==="
 
 echo "=== 15-char prefix of ID1 is unique ==="
 "$WF" i show 0123456789abcde 2>&1 | grep -q "first issue content"
+
+echo "=== current 14-column issue format also loads for show ==="
+"$WF" i show abc1 2>&1 | grep -q "third issue content"
 
 echo "=== 1-char ID prefix is rejected as too short ==="
 if "$WF" i show 0 2>&1 | grep -q "issue id too short"; then

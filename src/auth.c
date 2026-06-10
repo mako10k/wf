@@ -5,9 +5,12 @@
 #include "storage.h"
 #include "util.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 struct wf_user_record {
     char username[128];
@@ -124,6 +127,26 @@ static int wf_read_user_record(const struct wf_domain *domain, const char *usern
     return 1;
 }
 
+static int wf_auth_user_exists(const struct wf_domain *domain, const char *username)
+{
+    struct wf_user_record record;
+
+    return wf_read_user_record(domain, username, &record) == 0;
+}
+
+int wf_auth_create(const struct wf_domain *domain, const char *username, const char *role_name)
+{
+    if (!wf_valid_username(username)) {
+        fprintf(stderr, "invalid username\n");
+        return 1;
+    }
+    if (wf_auth_user_exists(domain, username)) {
+        fprintf(stderr, "user already exists: %s\n", username);
+        return 1;
+    }
+    return wf_auth_passwd(domain, username, role_name);
+}
+
 int wf_auth_passwd(const struct wf_domain *domain, const char *username, const char *role_name)
 {
     enum wf_role role;
@@ -161,18 +184,21 @@ int wf_auth_passwd(const struct wf_domain *domain, const char *username, const c
     return 0;
 }
 
-int wf_auth_login(const struct wf_domain *domain, const char *username)
+static int wf_auth_open_session(const struct wf_domain *domain, const char *username, char token[65])
 {
     struct wf_user_record record;
     enum wf_role role;
     char *password = NULL;
     char hash[65];
-    char token[65];
     FILE *file;
 
     if (wf_read_user_record(domain, username, &record) != 0) {
         if (strcmp(username, "assistant") != 0) {
-            fprintf(stderr, "unknown user: %s\n", username);
+            fprintf(stderr,
+                "unknown user: %s. Create a User with 'wf user passwd %s User' or an Assistant with 'wf user create %s Assistant'.\n",
+                username,
+                username,
+                username);
             return 1;
         }
         if (wf_write_user_record(domain, username, WF_ROLE_ASSISTANT, "", "") != 0 ||
@@ -208,19 +234,16 @@ int wf_auth_login(const struct wf_domain *domain, const char *username)
         perror(domain->sessions);
         return 1;
     }
-    printf("export WF_TOKEN='%s'\n", token);
     return 0;
 }
 
-int wf_auth_logout(const struct wf_domain *domain)
+static int wf_auth_remove_session_token(const struct wf_domain *domain, const char *token)
 {
-    const char *token = getenv("WF_TOKEN");
     FILE *old_file;
     FILE *new_file;
     char line[1024];
 
     if (token == NULL || token[0] == '\0') {
-        printf("unset WF_TOKEN\n");
         return 0;
     }
     if (wf_replace_file(domain->sessions, &new_file) != 0) {
@@ -243,8 +266,89 @@ int wf_auth_logout(const struct wf_domain *domain)
     if (wf_commit_replace(domain->sessions, new_file) != 0) {
         return 1;
     }
+    return 0;
+}
+
+int wf_auth_env_export(const struct wf_domain *domain, const char *username)
+{
+    char token[65];
+
+    if (wf_auth_open_session(domain, username, token) != 0) {
+        return 1;
+    }
+    printf("export WF_TOKEN='%s'\n", token);
+    return 0;
+}
+
+int wf_auth_env_clear(const struct wf_domain *domain)
+{
+    const char *token = getenv("WF_TOKEN");
+
+    if (wf_auth_remove_session_token(domain, token) != 0) {
+        return 1;
+    }
     printf("unset WF_TOKEN\n");
     return 0;
+}
+
+int wf_auth_exec(const struct wf_domain *domain, const char *username, int argc, char **argv)
+{
+    char token[65];
+    const char *shell;
+    pid_t child;
+    int status;
+    int wait_rc;
+    int clear_rc;
+
+    if (wf_auth_open_session(domain, username, token) != 0) {
+        return 1;
+    }
+
+    child = fork();
+    if (child < 0) {
+        perror("fork");
+        wf_auth_remove_session_token(domain, token);
+        return 1;
+    }
+
+    if (child == 0) {
+        if (setenv("WF_TOKEN", token, 1) != 0) {
+            perror("setenv");
+            _exit(1);
+        }
+        if (argc == 0) {
+            shell = getenv("SHELL");
+            if (shell == NULL || shell[0] == '\0') {
+                shell = "/bin/sh";
+            }
+            execl(shell, shell, "-i", (char *)NULL);
+            perror(shell);
+            _exit(127);
+        }
+        execvp(argv[0], argv);
+        perror(argv[0]);
+        _exit(127);
+    }
+
+    do {
+        wait_rc = waitpid(child, &status, 0);
+    } while (wait_rc < 0 && errno == EINTR);
+
+    clear_rc = wf_auth_remove_session_token(domain, token);
+    if (wait_rc < 0) {
+        perror("waitpid");
+        return 1;
+    }
+    if (clear_rc != 0) {
+        return 1;
+    }
+    if (WIFEXITED(status)) {
+        return WEXITSTATUS(status);
+    }
+    if (WIFSIGNALED(status)) {
+        return 128 + WTERMSIG(status);
+    }
+    return 1;
 }
 
 int wf_auth_current_user(const struct wf_domain *domain, struct wf_user *user)
@@ -254,12 +358,12 @@ int wf_auth_current_user(const struct wf_domain *domain, struct wf_user *user)
     char line[1024];
 
     if (token == NULL || token[0] == '\0') {
-        fprintf(stderr, "not logged in: run eval `wf login USERNAME`\n");
+        fprintf(stderr, "not logged in: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env export USERNAME)\"'\n");
         return 1;
     }
     file = fopen(domain->sessions, "r");
     if (file == NULL) {
-        fprintf(stderr, "not logged in: run eval `wf login USERNAME`\n");
+        fprintf(stderr, "not logged in: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env export USERNAME)\"'\n");
         return 1;
     }
     while (fgets(line, sizeof(line), file) != NULL) {
@@ -277,6 +381,6 @@ int wf_auth_current_user(const struct wf_domain *domain, struct wf_user *user)
         }
     }
     fclose(file);
-    fprintf(stderr, "invalid WF_TOKEN: run eval `wf login USERNAME`\n");
+    fprintf(stderr, "invalid WF_TOKEN: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env export USERNAME)\"'\n");
     return 1;
 }

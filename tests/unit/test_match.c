@@ -14,8 +14,8 @@ static void test_basic(void)
 {
     const char *names[] = {
         "passwd",
-        "login",
-        "logout",
+        "exec",
+        "env",
         "issue",
         NULL
     };
@@ -23,16 +23,16 @@ static void test_basic(void)
     enum wf_match_result r;
 
     /* exact */
-    r = wf_match_prefix(names, "login", &m);
+    r = wf_match_prefix(names, "exec", &m);
     assert(r == WF_MATCH_EXACT);
-    assert(m && strcmp(m, "login") == 0);
+    assert(m && strcmp(m, "exec") == 0);
 
     /* unique prefix */
-    r = wf_match_prefix(names, "logi", &m);
+    r = wf_match_prefix(names, "ex", &m);
     assert(r == WF_MATCH_PREFIX);
-    assert(m && strcmp(m, "login") == 0);
+    assert(m && strcmp(m, "exec") == 0);
 
-    r = wf_match_prefix(names, "lo", &m);  /* login + logout -> ambiguous */
+    r = wf_match_prefix(names, "e", &m);  /* exec + env -> ambiguous */
     assert(r == WF_MATCH_AMBIGUOUS);
     assert(m == NULL);
 

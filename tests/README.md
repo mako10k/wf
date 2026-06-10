@@ -29,10 +29,10 @@ WF=src/wf tests/cli/30_issue_sub_prefix.sh
   top-level subcommand dispatch and issue ID / subcommand resolution).
 - CLI smoke tests for help/usage text.
 - Unknown command and "ambiguous command" messages for top-level prefixes.
-- Prefix dispatch for top-level commands (`logi`, `pas`, `logo`, ...).
+- Prefix dispatch for top-level commands (`ex`, `en ex`, `en cl`, and delimiter/ambiguity cases, ...).
 - Full exercise of issue subcommand prefix matching + `ISSUE_ID` prefix
   resolution (including setting up a temporary domain + fake assistant
-  login + multiple issues with controlled name prefixes for ambiguity tests).
+  session + multiple issues with controlled name prefixes for ambiguity tests).
 
 ## Adding more tests
 

@@ -1,4 +1,4 @@
-AC_INIT([wf], [0.1.0])
+AC_INIT([wf], [0.2.0])
 AM_INIT_AUTOMAKE([foreign -Wall])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])

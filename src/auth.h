@@ -15,9 +15,11 @@ struct wf_user {
 
 const char *wf_role_name(enum wf_role role);
 int wf_role_parse(const char *value, enum wf_role *role);
+int wf_auth_create(const struct wf_domain *domain, const char *username, const char *role_name);
 int wf_auth_passwd(const struct wf_domain *domain, const char *username, const char *role_name);
-int wf_auth_login(const struct wf_domain *domain, const char *username);
-int wf_auth_logout(const struct wf_domain *domain);
+int wf_auth_env_export(const struct wf_domain *domain, const char *username);
+int wf_auth_env_clear(const struct wf_domain *domain);
+int wf_auth_exec(const struct wf_domain *domain, const char *username, int argc, char **argv);
 int wf_auth_current_user(const struct wf_domain *domain, struct wf_user *user);
 
 #endif

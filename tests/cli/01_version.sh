@@ -5,10 +5,10 @@ set -e
 WF=${WF:-../../src/wf}
 
 echo "=== version subcommand prints package version ==="
-"$WF" version 2>&1 | grep -q "^wf 0\.1\.0$"
+"$WF" version 2>&1 | grep -q "^wf 0\.2\.0$"
 
 echo "=== --version option prints package version ==="
-"$WF" --version 2>&1 | grep -q "^wf 0\.1\.0$"
+"$WF" --version 2>&1 | grep -q "^wf 0\.2\.0$"
 
 echo "=== version subcommand rejects extra args ==="
 out=$("$WF" version extra 2>&1 || true)
