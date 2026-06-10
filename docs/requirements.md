@@ -97,6 +97,11 @@ Rules:
 - `wf login assistant` may auto-register the default Assistant if it does not exist.
 - `wf logout` prints shell code that removes `WF_TOKEN`.
 
+Command abbreviation:
+
+- Top-level commands (`passwd`, `login`, `logout`, `issue`) and `issue` subcommands may be abbreviated to a unique prefix (e.g. `wf logi`, `wf i cr`, `wf i app`).
+- On ambiguity the command prints "ambiguous command: ..." (or "ambiguous issue command: ...") and usage.
+
 ## Issue Commands
 
 ```bash
@@ -120,6 +125,9 @@ wf issue comments ISSUE_ID
 # Issue search
 wf issue search KEYWORD
 ```
+
+- `issue` subcommands may be abbreviated to a unique prefix (e.g. `wf i sh 0123`, `wf i up 0123 new text`).
+- `ISSUE_ID` may be given as a unique prefix of 2 or more characters (the tool resolves it against existing issues in the domain; ambiguous or too-short prefixes are reported with a clear error).
 
 ## Domain / Storage
 

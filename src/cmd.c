@@ -4,53 +4,43 @@
 
 #include "util.h"
 
-#include <stdio.h>
 #include <string.h>
 
-enum wf_cmd_match_result wf_cmd_match(const struct wf_subcommand *table,
-                                      const char *name,
-                                      const struct wf_subcommand **out)
+enum wf_match_result wf_cmd_match(const struct wf_subcommand *table,
+                                  const char *name,
+                                  const struct wf_subcommand **out)
 {
     const struct wf_subcommand *entry;
-    const struct wf_subcommand *exact = NULL;
-    const struct wf_subcommand *prefix_match = NULL;
-    int prefix_count = 0;
-    size_t name_len;
+    const char *names[64];
+    int i = 0;
+    const char *matched = NULL;
+    enum wf_match_result res;
 
     *out = NULL;
 
-    if (name == NULL || name[0] == '\0' || table == NULL) {
-        return WF_CMD_MATCH_NONE;
+    if (table == NULL || name == NULL || name[0] == '\0') {
+        return WF_MATCH_NONE;
     }
 
-    name_len = strlen(name);
+    for (entry = table; entry->name != NULL && i < 63; entry += 1) {
+        names[i++] = entry->name;
+    }
+    names[i] = NULL;
 
-    /* First pass: look for exact match (highest priority) */
-    for (entry = table; entry->name != NULL; entry += 1) {
-        if (wf_streq(entry->name, name)) {
-            exact = entry;
-            break;
+    res = wf_match_prefix(names, name, &matched);
+    if (res == WF_MATCH_EXACT || res == WF_MATCH_PREFIX) {
+        for (entry = table; entry->name != NULL; entry += 1) {
+            if (entry->name == matched) {
+                *out = entry;
+                return res;
+            }
+        }
+        for (entry = table; entry->name != NULL; entry += 1) {
+            if (wf_streq(entry->name, matched)) {
+                *out = entry;
+                return res;
+            }
         }
     }
-    if (exact != NULL) {
-        *out = exact;
-        return WF_CMD_MATCH_EXACT;
-    }
-
-    /* Second pass: collect unique prefix matches */
-    for (entry = table; entry->name != NULL; entry += 1) {
-        if (strncmp(entry->name, name, name_len) == 0) {
-            prefix_count += 1;
-            prefix_match = entry;
-        }
-    }
-
-    if (prefix_count == 1) {
-        *out = prefix_match;
-        return WF_CMD_MATCH_PREFIX;
-    }
-    if (prefix_count > 1) {
-        return WF_CMD_MATCH_AMBIGUOUS;
-    }
-    return WF_CMD_MATCH_NONE;
+    return res;
 }

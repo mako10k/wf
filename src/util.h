@@ -13,4 +13,13 @@ void wf_trim_newline(char *text);
 int wf_read_password_twice(const char *prompt1, const char *prompt2, char **out);
 int wf_read_password_once(const char *prompt, char **out);
 
+enum wf_match_result {
+    WF_MATCH_EXACT = 0,
+    WF_MATCH_PREFIX,
+    WF_MATCH_NONE,
+    WF_MATCH_AMBIGUOUS,
+};
+
+enum wf_match_result wf_match_prefix(const char *const *names, const char *input, const char **out);
+
 #endif

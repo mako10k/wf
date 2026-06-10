@@ -215,3 +215,49 @@ int wf_read_password_twice(const char *prompt1, const char *prompt2, char **out)
     *out = first;
     return 0;
 }
+
+enum wf_match_result wf_match_prefix(const char *const *names, const char *input, const char **out)
+{
+    const char *const *p;
+    const char *exact = NULL;
+    const char *prefix_match = NULL;
+    int prefix_count = 0;
+    size_t input_len;
+
+    *out = NULL;
+
+    if (input == NULL || input[0] == '\0' || names == NULL) {
+        return WF_MATCH_NONE;
+    }
+
+    input_len = strlen(input);
+
+    /* First pass: exact match has priority */
+    for (p = names; *p != NULL; p += 1) {
+        if (wf_streq(*p, input)) {
+            exact = *p;
+            break;
+        }
+    }
+    if (exact != NULL) {
+        *out = exact;
+        return WF_MATCH_EXACT;
+    }
+
+    /* Second pass: unique prefix match */
+    for (p = names; *p != NULL; p += 1) {
+        if (strncmp(*p, input, input_len) == 0) {
+            prefix_count += 1;
+            prefix_match = *p;
+        }
+    }
+
+    if (prefix_count == 1) {
+        *out = prefix_match;
+        return WF_MATCH_PREFIX;
+    }
+    if (prefix_count > 1) {
+        return WF_MATCH_AMBIGUOUS;
+    }
+    return WF_MATCH_NONE;
+}

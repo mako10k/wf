@@ -1,0 +1,5 @@
+# cppcheck suppressions for wf project
+# Add ids like "missingIncludeSystem" or "unmatchedSuppression" as needed.
+# Example:
+# missingIncludeSystem
+# unusedFunction

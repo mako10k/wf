@@ -67,6 +67,70 @@ static int wf_issue_comments_path(const struct wf_domain *domain, const char *id
     return 0;
 }
 
+int wf_issue_resolve_id(const struct wf_domain *domain, const char *partial, char resolved[65])
+{
+    DIR *dir;
+    struct dirent *entry;
+    char idbuf[4096][17];
+    const char *names[4096 + 1];
+    int n = 0;
+    size_t plen;
+    const char *matched = NULL;
+    enum wf_match_result res;
+
+    if (partial == NULL || partial[0] == '\0') {
+        fprintf(stderr, "missing issue id\n");
+        return 1;
+    }
+    plen = strlen(partial);
+    if (strstr(partial, "/") != NULL) {
+        fprintf(stderr, "invalid issue id\n");
+        return 1;
+    }
+    if (plen < 2) {
+        fprintf(stderr, "issue id too short (minimum 2 characters)\n");
+        return 1;
+    }
+
+    dir = opendir(domain->issues);
+    if (dir == NULL) {
+        perror(domain->issues);
+        return 1;
+    }
+    while ((entry = readdir(dir)) != NULL) {
+        size_t length = strlen(entry->d_name);
+        if (length <= 4 || strcmp(entry->d_name + length - 4, ".tsv") != 0 ||
+            strstr(entry->d_name, ".comments.tsv") != NULL) {
+            continue;
+        }
+        int idlen = (int)(length - 4);
+        if (idlen != 16) {
+            continue;
+        }
+        if (n >= 4096) {
+            continue;
+        }
+        memcpy(idbuf[n], entry->d_name, 16);
+        idbuf[n][16] = '\0';
+        names[n] = idbuf[n];
+        n += 1;
+    }
+    closedir(dir);
+    names[n] = NULL;
+
+    res = wf_match_prefix(names, partial, &matched);
+    if (res == WF_MATCH_EXACT || res == WF_MATCH_PREFIX) {
+        snprintf(resolved, 65, "%s", matched);
+        return 0;
+    }
+    if (res == WF_MATCH_AMBIGUOUS) {
+        fprintf(stderr, "ambiguous issue id: %s\n", partial);
+        return 1;
+    }
+    fprintf(stderr, "issue not found: %s\n", partial);
+    return 1;
+}
+
 static int wf_issue_load(const struct wf_domain *domain, const char *id, struct wf_issue *issue)
 {
     char path[PATH_MAX];
@@ -259,8 +323,12 @@ static int wf_issue_list(const struct wf_domain *domain)
 static int wf_issue_show(const struct wf_domain *domain, const char *id)
 {
     struct wf_issue issue;
+    char full_id[65];
 
-    if (wf_issue_load(domain, id, &issue) != 0) {
+    if (wf_issue_resolve_id(domain, id, full_id) != 0) {
+        return 1;
+    }
+    if (wf_issue_load(domain, full_id, &issue) != 0) {
         return 1;
     }
     printf("id: %s\n", issue.id);
@@ -279,12 +347,16 @@ static int wf_issue_update(const struct wf_domain *domain, const struct wf_user 
 {
     struct wf_issue issue;
     char *content = NULL;
+    char full_id[65];
 
     if (argc < 4) {
         fprintf(stderr, "usage: wf issue update ISSUE_ID CONTENTS\n");
         return 1;
     }
-    if (wf_issue_load(domain, argv[2], &issue) != 0) {
+    if (wf_issue_resolve_id(domain, argv[2], full_id) != 0) {
+        return 1;
+    }
+    if (wf_issue_load(domain, full_id, &issue) != 0) {
         return 1;
     }
     if (user->role != WF_ROLE_ASSISTANT || strcmp(issue.creator, user->username) != 0) {
@@ -312,8 +384,12 @@ static int wf_issue_delete(const struct wf_domain *domain, const struct wf_user 
     struct wf_issue issue;
     char path[PATH_MAX];
     char comments_path[PATH_MAX];
+    char full_id[65];
 
-    if (wf_issue_load(domain, id, &issue) != 0) {
+    if (wf_issue_resolve_id(domain, id, full_id) != 0) {
+        return 1;
+    }
+    if (wf_issue_load(domain, full_id, &issue) != 0) {
         return 1;
     }
     if (user->role != WF_ROLE_ASSISTANT || strcmp(issue.creator, user->username) != 0) {
@@ -322,8 +398,8 @@ static int wf_issue_delete(const struct wf_domain *domain, const struct wf_user 
         return 1;
     }
     wf_issue_free(&issue);
-    if (wf_issue_path(domain, id, path, sizeof(path)) != 0 ||
-        wf_issue_comments_path(domain, id, comments_path, sizeof(comments_path)) != 0) {
+    if (wf_issue_path(domain, full_id, path, sizeof(path)) != 0 ||
+        wf_issue_comments_path(domain, full_id, comments_path, sizeof(comments_path)) != 0) {
         return 1;
     }
     if (unlink(path) != 0) {
@@ -338,6 +414,7 @@ static int wf_issue_set_status(const struct wf_domain *domain, const struct wf_u
 {
     struct wf_issue issue;
     char *comment = NULL;
+    char full_id[65];
 
     if (argc < 4) {
         fprintf(stderr, "usage: wf issue %s ISSUE_ID COMMENT\n", argv[1]);
@@ -347,7 +424,10 @@ static int wf_issue_set_status(const struct wf_domain *domain, const struct wf_u
         fprintf(stderr, "permission denied: only User can change approval status\n");
         return 1;
     }
-    if (wf_issue_load(domain, argv[2], &issue) != 0) {
+    if (wf_issue_resolve_id(domain, argv[2], full_id) != 0) {
+        return 1;
+    }
+    if (wf_issue_load(domain, full_id, &issue) != 0) {
         return 1;
     }
     if (wf_join_args(argc, argv, 3, &comment) != 0) {
@@ -371,19 +451,23 @@ static int wf_issue_comment_cmd(const struct wf_domain *domain, const struct wf_
 {
     struct wf_issue issue;
     char *comment = NULL;
+    char full_id[65];
 
     if (argc < 4) {
         fprintf(stderr, "usage: wf issue comment ISSUE_ID COMMENT\n");
         return 1;
     }
-    if (wf_issue_load(domain, argv[2], &issue) != 0) {
+    if (wf_issue_resolve_id(domain, argv[2], full_id) != 0) {
+        return 1;
+    }
+    if (wf_issue_load(domain, full_id, &issue) != 0) {
         return 1;
     }
     wf_issue_free(&issue);
     if (wf_join_args(argc, argv, 3, &comment) != 0) {
         return 1;
     }
-    if (wf_issue_add_comment(domain, user, argv[2], comment) != 0) {
+    if (wf_issue_add_comment(domain, user, full_id, comment) != 0) {
         free(comment);
         return 1;
     }
@@ -396,8 +480,12 @@ static int wf_issue_comments(const struct wf_domain *domain, const char *id)
     char path[PATH_MAX];
     FILE *file;
     char line[8192];
+    char full_id[65];
 
-    if (wf_issue_comments_path(domain, id, path, sizeof(path)) != 0) {
+    if (wf_issue_resolve_id(domain, id, full_id) != 0) {
+        return 1;
+    }
+    if (wf_issue_comments_path(domain, full_id, path, sizeof(path)) != 0) {
         return 1;
     }
     file = fopen(path, "r");
@@ -458,48 +546,161 @@ static int wf_issue_search(const struct wf_domain *domain, int argc, char **argv
     return 0;
 }
 
-int wf_issue_command(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+struct wf_issue_subcommand {
+    const char *name;
+    int (*fn)(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv);
+};
+
+void wf_issue_usage(FILE *fp)
 {
-    if (argc < 2) {
-        fprintf(stderr, "usage: wf issue COMMAND ...\n");
+    fprintf(fp, "usage: wf issue COMMAND [ARGS...]\n");
+    fprintf(fp, "  (COMMAND may be abbreviated to a unique prefix.)\n");
+    fprintf(fp, "  ISSUE_ID may be abbreviated to a unique prefix of 2 or more characters.\n");
+    fprintf(fp, "  wf issue create CONTENTS\n");
+    fprintf(fp, "  wf issue list\n");
+    fprintf(fp, "  wf issue show ISSUE_ID\n");
+    fprintf(fp, "  wf issue update ISSUE_ID CONTENTS\n");
+    fprintf(fp, "  wf issue delete ISSUE_ID\n");
+    fprintf(fp, "  wf issue approve ISSUE_ID COMMENT\n");
+    fprintf(fp, "  wf issue reject ISSUE_ID COMMENT\n");
+    fprintf(fp, "  wf issue hold ISSUE_ID COMMENT\n");
+    fprintf(fp, "  wf issue resume ISSUE_ID COMMENT\n");
+    fprintf(fp, "  wf issue comment ISSUE_ID COMMENT\n");
+    fprintf(fp, "  wf issue comments ISSUE_ID\n");
+    fprintf(fp, "  wf issue search KEYWORD\n");
+}
+
+static int ic_create(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    return wf_issue_create(domain, user, argc, argv);
+}
+
+static int ic_list(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    (void)user;
+    (void)argc;
+    (void)argv;
+    return wf_issue_list(domain);
+}
+
+static int ic_show(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    (void)user;
+    if (argc != 3) {
+        fprintf(stderr, "usage: wf issue show ISSUE_ID\n");
         return 1;
     }
-    if (wf_streq(argv[1], "create")) {
-        return wf_issue_create(domain, user, argc, argv);
+    return wf_issue_show(domain, argv[2]);
+}
+
+static int ic_update(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    return wf_issue_update(domain, user, argc, argv);
+}
+
+static int ic_delete(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    if (argc != 3) {
+        fprintf(stderr, "usage: wf issue delete ISSUE_ID\n");
+        return 1;
     }
-    if (wf_streq(argv[1], "list")) {
-        return wf_issue_list(domain);
+    return wf_issue_delete(domain, user, argv[2]);
+}
+
+static int ic_approve(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    return wf_issue_set_status(domain, user, argc, argv, "approved");
+}
+
+static int ic_reject(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    return wf_issue_set_status(domain, user, argc, argv, "rejected");
+}
+
+static int ic_hold(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    return wf_issue_set_status(domain, user, argc, argv, "hold");
+}
+
+static int ic_resume(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    return wf_issue_set_status(domain, user, argc, argv, "open");
+}
+
+static int ic_comment(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    return wf_issue_comment_cmd(domain, user, argc, argv);
+}
+
+static int ic_comments(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    (void)user;
+    if (argc != 3) {
+        fprintf(stderr, "usage: wf issue comments ISSUE_ID\n");
+        return 1;
     }
-    if (wf_streq(argv[1], "show") && argc == 3) {
-        return wf_issue_show(domain, argv[2]);
+    return wf_issue_comments(domain, argv[2]);
+}
+
+static int ic_search(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    (void)user;
+    return wf_issue_search(domain, argc, argv);
+}
+
+static const struct wf_issue_subcommand issue_commands[] = {
+    {"create", ic_create},
+    {"list", ic_list},
+    {"show", ic_show},
+    {"update", ic_update},
+    {"delete", ic_delete},
+    {"approve", ic_approve},
+    {"reject", ic_reject},
+    {"hold", ic_hold},
+    {"resume", ic_resume},
+    {"comment", ic_comment},
+    {"comments", ic_comments},
+    {"search", ic_search},
+    {NULL, NULL}
+};
+
+int wf_issue_command(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
+{
+    if (argc < 2 || wf_streq(argv[1], "help") || wf_streq(argv[1], "--help") || wf_streq(argv[1], "-h")) {
+        wf_issue_usage(argc < 2 ? stderr : stdout);
+        return argc < 2 ? 1 : 0;
     }
-    if (wf_streq(argv[1], "update")) {
-        return wf_issue_update(domain, user, argc, argv);
+
+    const char *names[32];
+    int ni = 0;
+    const struct wf_issue_subcommand *entry;
+    for (entry = issue_commands; entry->name != NULL && ni < 31; entry += 1) {
+        names[ni++] = entry->name;
     }
-    if (wf_streq(argv[1], "delete") && argc == 3) {
-        return wf_issue_delete(domain, user, argv[2]);
+    names[ni] = NULL;
+
+    const char *matched = NULL;
+    enum wf_match_result res = wf_match_prefix(names, argv[1], &matched);
+    if (res == WF_MATCH_EXACT || res == WF_MATCH_PREFIX) {
+        for (entry = issue_commands; entry->name != NULL; entry += 1) {
+            if (entry->name == matched) {
+                return entry->fn(domain, user, argc, argv);
+            }
+        }
+        for (entry = issue_commands; entry->name != NULL; entry += 1) {
+            if (wf_streq(entry->name, matched)) {
+                return entry->fn(domain, user, argc, argv);
+            }
+        }
     }
-    if (wf_streq(argv[1], "approve")) {
-        return wf_issue_set_status(domain, user, argc, argv, "approved");
+
+    if (res == WF_MATCH_AMBIGUOUS) {
+        fprintf(stderr, "ambiguous issue command: %s\n", argv[1]);
+        wf_issue_usage(stderr);
+        return 1;
     }
-    if (wf_streq(argv[1], "reject")) {
-        return wf_issue_set_status(domain, user, argc, argv, "rejected");
-    }
-    if (wf_streq(argv[1], "hold")) {
-        return wf_issue_set_status(domain, user, argc, argv, "hold");
-    }
-    if (wf_streq(argv[1], "resume")) {
-        return wf_issue_set_status(domain, user, argc, argv, "open");
-    }
-    if (wf_streq(argv[1], "comment")) {
-        return wf_issue_comment_cmd(domain, user, argc, argv);
-    }
-    if (wf_streq(argv[1], "comments") && argc == 3) {
-        return wf_issue_comments(domain, argv[2]);
-    }
-    if (wf_streq(argv[1], "search")) {
-        return wf_issue_search(domain, argc, argv);
-    }
+
     fprintf(stderr, "unknown issue command: %s\n", argv[1]);
+    wf_issue_usage(stderr);
     return 1;
 }

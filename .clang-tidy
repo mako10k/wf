@@ -1,0 +1,24 @@
+---
+# Basic clang-tidy config for the wf C project.
+# We disable the very noisy "insecure buffer" checks because this is a
+# small classic C11 CLI tool that deliberately uses the standard APIs
+# (fprintf, snprintf, memcpy, etc.). Real security review would be
+# different for a network-facing program.
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  -clang-analyzer-security.insecureAPI.*,
+  misc-*,
+  -misc-include-cleaner,
+  performance-*,
+  portability-*,
+  readability-*,
+  -readability-identifier-naming
+
+WarningsAsErrors: ''
+HeaderFilterRegex: ''
+AnalyzeTemporaryDtors: false
+FormatStyle: none
+User: user
+...
