@@ -5,6 +5,11 @@
 set -e
 WF=${WF:-../../src/wf}
 
+case "$WF" in
+  /*) ;;
+  *) WF="$(cd "$(dirname "$WF")" && pwd)/$(basename "$WF")" ;;
+esac
+
 # Work in an isolated temp dir so we control the cwd (thus the domain).
 TESTROOT=$(mktemp -d)
 trap 'rm -rf "$TESTROOT"' EXIT
@@ -13,7 +18,7 @@ cd "$TESTROOT"
 export XDG_DATA_HOME="$TESTROOT/xdg"
 
 # Initialize domain (creates the issues dir etc.)
-"$WF" --help >/dev/null 2>&1 || true
+"$WF" domain create >/dev/null 2>&1 || true
 
 # Find the domain root that was just created for this cwd
 DOMAIN_ROOT=$(find "$XDG_DATA_HOME" -type d -path '*/wf/domains/*' | head -1)
@@ -72,6 +77,14 @@ echo "=== 4-char '0123' is unique to ID1 ==="
 echo "=== 15-char prefix of ID1 is unique ==="
 "$WF" i show 0123456789abcde 2>&1 | grep -q "first issue content"
 
+echo "=== 1-char ID prefix is rejected as too short ==="
+if "$WF" i show 0 2>&1 | grep -q "issue id too short"; then
+  :
+else
+  echo "expected short issue id error for '0'" >&2
+  exit 1
+fi
+
 echo "=== issue subcommand ambiguity: 'c' (create vs comment) ==="
 if "$WF" i c something 2>&1 | grep -q "ambiguous issue command: c"; then
   :
@@ -80,13 +93,108 @@ else
   exit 1
 fi
 
+echo "=== issue subcommand ambiguity: 'approve-' (approve-with vs approve-partial) ==="
+if "$WF" i approve- something 2>&1 | grep -q "ambiguous issue command: approve-"; then
+  :
+else
+  echo "expected ambiguous issue command for 'approve-'" >&2
+  exit 1
+fi
+
+echo "=== shortest unique prefix for approve-with dispatches ==="
+out=$("$WF" i approve-w "$ID1" "only after canary passes" "review override" 2>&1 || true)
+case "$out" in
+  *"ambiguous issue command"*|*"unknown issue command"*) echo "expected approve-w to dispatch uniquely" >&2; exit 1 ;;
+  *"permission denied: only User can change approval status"*|*"usage:"*) : ;;
+  *) printf '  (got: %s)\n' "$out" ;;
+esac
+
+echo "=== exact approve command still dispatches despite approve-with siblings ==="
+out=$("$WF" i approve "$ID1" "looks fine" 2>&1 || true)
+case "$out" in
+  *"ambiguous issue command"*|*"unknown issue command"*) echo "expected approve to dispatch exactly" >&2; exit 1 ;;
+  *"permission denied: only User can change approval status"*|*"usage:"*) : ;;
+  *) printf '  (got: %s)\n' "$out" ;;
+esac
+
+echo "=== shortest unique prefix for request-condition dispatches ==="
+out=$("$WF" i request-c "$ID1" "only after canary passes" 2>&1 || true)
+case "$out" in
+  *"ambiguous issue command"*|*"unknown issue command"*) echo "expected request-c to dispatch uniquely" >&2; exit 1 ;;
+  *"permission denied: only Assistant can update requested conditions"*|*"usage:"*) : ;;
+  *) printf '  (got: %s)\n' "$out" ;;
+esac
+
+echo "=== shortest unique prefix for clear-condition dispatches ==="
+out=$("$WF" i clear-c "$ID1" "scope changed" 2>&1 || true)
+case "$out" in
+  *"ambiguous issue command"*|*"unknown issue command"*) echo "expected clear-c to dispatch uniquely" >&2; exit 1 ;;
+  *"permission denied: only Assistant can update requested conditions"*|*"usage:"*) : ;;
+  *) printf '  (got: %s)\n' "$out" ;;
+esac
+
+echo "=== shortest unique prefix for approve-partial dispatches ==="
+out=$("$WF" i approve-p "$ID1" "approve canary only" "review override" 2>&1 || true)
+case "$out" in
+  *"ambiguous issue command"*|*"unknown issue command"*) echo "expected approve-p to dispatch uniquely" >&2; exit 1 ;;
+  *"permission denied: only User can change approval status"*|*"usage:"*) : ;;
+  *) printf '  (got: %s)\n' "$out" ;;
+esac
+
+echo "=== shortest unique prefix for reject-with dispatches ==="
+out=$("$WF" i reject-w "$ID1" "reject until signoff" "review override" 2>&1 || true)
+case "$out" in
+  *"ambiguous issue command"*|*"unknown issue command"*) echo "expected reject-w to dispatch uniquely" >&2; exit 1 ;;
+  *"permission denied: only User can change approval status"*|*"usage:"*) : ;;
+  *) printf '  (got: %s)\n' "$out" ;;
+esac
+
+echo "=== exact reject command still dispatches despite reject-with sibling ==="
+out=$("$WF" i reject "$ID1" "not acceptable" 2>&1 || true)
+case "$out" in
+  *"ambiguous issue command"*|*"unknown issue command"*) echo "expected reject to dispatch exactly" >&2; exit 1 ;;
+  *"permission denied: only User can change approval status"*|*"usage:"*) : ;;
+  *) printf '  (got: %s)\n' "$out" ;;
+esac
+
+echo "=== shortest unique prefix for hold-with dispatches ==="
+out=$("$WF" i hold-w "$ID1" "hold until window opens" "review override" 2>&1 || true)
+case "$out" in
+  *"ambiguous issue command"*|*"unknown issue command"*) echo "expected hold-w to dispatch uniquely" >&2; exit 1 ;;
+  *"permission denied: only User can change approval status"*|*"usage:"*) : ;;
+  *) printf '  (got: %s)\n' "$out" ;;
+esac
+
+echo "=== exact hold command still dispatches despite hold-with sibling ==="
+out=$("$WF" i hold "$ID1" "needs more review" 2>&1 || true)
+case "$out" in
+  *"ambiguous issue command"*|*"unknown issue command"*) echo "expected hold to dispatch exactly" >&2; exit 1 ;;
+  *"permission denied: only User can change approval status"*|*"usage:"*) : ;;
+  *) printf '  (got: %s)\n' "$out" ;;
+esac
+
+echo "=== shortest unique prefix for invalidate-condition dispatches ==="
+out=$("$WF" i invalidate- "$ID1" "reject requested condition" 2>&1 || true)
+case "$out" in
+  *"ambiguous issue command"*|*"unknown issue command"*) echo "expected invalidate- to dispatch uniquely" >&2; exit 1 ;;
+  *"permission denied: only User can change approval status"*|*"no requested condition to invalidate"*|*"usage:"*) : ;;
+  *) printf '  (got: %s)\n' "$out" ;;
+esac
+
+echo "=== exact invalidate command still dispatches despite invalidate-condition sibling ==="
+out=$("$WF" i invalidate "$ID1" "superseded work item" 2>&1 || true)
+case "$out" in
+  *"ambiguous issue command"*|*"unknown issue command"*) echo "expected invalidate to dispatch exactly" >&2; exit 1 ;;
+  *"permission denied: only User can change approval status"*|*"usage:"*) : ;;
+  *) printf '  (got: %s)\n' "$out" ;;
+esac
+
 echo "=== 'cr' create via prefix (assistant can create) ==="
 NEWID=$("$WF" i cr "created via prefix subcommand" 2>&1)
 echo "$NEWID" | grep -qE '^[0-9a-f]{16}$'
 
 echo "=== show the newly created issue with short prefix ==="
-"$WF" i sh "${NEWID%?????????????????}" 2>&1 | grep -q "created via prefix subcommand" || \
-  "$WF" i sh "$(echo "$NEWID" | cut -c1-4)" 2>&1 | grep -q "created via prefix subcommand"
+"$WF" i sh "$(echo "$NEWID" | cut -c1-4)" 2>&1 | grep -q "created via prefix subcommand"
 
 echo "=== unknown issue subcommand ==="
 if "$WF" i xyzzy 2>&1 | grep -q "unknown issue command: xyzzy"; then

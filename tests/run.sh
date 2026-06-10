@@ -10,9 +10,16 @@ cd "$(dirname "$0")"
 
 export WF=${WF:-../src/wf}
 
+case "$WF" in
+  /*) ;;
+  *) WF="$(cd "$(dirname "$WF")" && pwd)/$(basename "$WF")" ;;
+esac
+export WF
+
 if [ ! -x "$WF" ]; then
   echo "wf binary not found or not executable at: $WF" >&2
   echo "Build first (make -C src) or set WF=/path/to/wf" >&2
+  echo "The test suite also expects a C compiler and libcrypto development headers/libraries." >&2
   exit 1
 fi
 
@@ -22,6 +29,8 @@ echo "Using wf: $WF"
 # "make test" / "make check" never hangs waiting for password/tty input
 # even if a test accidentally hits an interactive code path.
 export TERM=dumb
+STTY_STATE=$(stty -g 2>/dev/null || true)
+trap '[ -n "$STTY_STATE" ] && stty "$STTY_STATE" 2>/dev/null || true' EXIT
 # Best effort: turn off local echo if we have a controlling tty.
 stty -echo 2>/dev/null || true
 

@@ -48,6 +48,52 @@ static void wf_print_version(FILE *fp)
 static void wf_print_concepts(FILE *fp);
 static void wf_print_semantics(FILE *fp);
 static void wf_print_usecases(FILE *fp);
+static void wf_print_login_usage(FILE *fp);
+static void wf_print_logout_usage(FILE *fp);
+static void wf_print_version_usage(FILE *fp);
+static void wf_user_usage(FILE *fp);
+static void wf_domain_usage(FILE *fp);
+
+static void wf_print_login_usage(FILE *fp)
+{
+    fprintf(fp, "usage: wf login [USERNAME]\n");
+}
+
+static void wf_print_logout_usage(FILE *fp)
+{
+    fprintf(fp, "usage: wf logout\n");
+}
+
+static void wf_print_version_usage(FILE *fp)
+{
+    fprintf(fp, "usage: wf version\n");
+    fprintf(fp, "       wf --version\n");
+}
+
+static void wf_user_usage(FILE *fp)
+{
+    fprintf(fp,
+        "usage: wf user COMMAND\n"
+        "  (COMMAND may be abbreviated to a unique prefix.)\n"
+        "  Entity: user (list + create + password management)\n"
+        "  wf user list\n"
+        "  wf user create USERNAME [User|Assistant]\n"
+        "  wf user passwd USERNAME [User|Assistant]\n");
+    fprintf(fp, "\nSee 'wf help concepts' (actor / role section).\n");
+}
+
+static void wf_domain_usage(FILE *fp)
+{
+    fprintf(fp,
+        "usage: wf domain COMMAND\n"
+        "  (COMMAND may be abbreviated to a unique prefix; aliases: ls, current.)\n"
+        "  wf domain list\n"
+        "  wf domain create\n"
+        "  wf domain show [id|short]\n"
+        "  wf domain delete <id|short>\n"
+        "  wf domain status\n");
+    fprintf(fp, "\nSee 'wf help concepts' (domain section) and 'wf help semantics'.\n");
+}
 
 static void wf_help(FILE *fp, const char *topic)
 {
@@ -67,6 +113,30 @@ static void wf_help(FILE *fp, const char *topic)
     }
     if (wf_streq(topic, "usecases") || wf_streq(topic, "examples")) {
         wf_print_usecases(fp);
+        return;
+    }
+    if (wf_streq(topic, "login")) {
+        wf_print_login_usage(fp);
+        return;
+    }
+    if (wf_streq(topic, "logout")) {
+        wf_print_logout_usage(fp);
+        return;
+    }
+    if (wf_streq(topic, "version")) {
+        wf_print_version_usage(fp);
+        return;
+    }
+    if (wf_streq(topic, "issue")) {
+        wf_issue_usage(fp);
+        return;
+    }
+    if (wf_streq(topic, "user")) {
+        wf_user_usage(fp);
+        return;
+    }
+    if (wf_streq(topic, "domain")) {
+        wf_domain_usage(fp);
         return;
     }
 
@@ -89,15 +159,19 @@ static void wf_print_concepts(FILE *fp)
     fprintf(fp, "\n");
     fprintf(fp, "  actor / role:\n");
     fprintf(fp, "      User     - human approver. Requires TTY password on login.\n");
-    fprintf(fp, "                 Can read issues, comment, and change status\n");
-    fprintf(fp, "                 (approve/reject/hold/resume).\n");
+    fprintf(fp, "                 Can read issues, comment, review issues\n");
+    fprintf(fp, "                 (approve/reject/hold/resume), invalidate a\n");
+    fprintf(fp, "                 requested condition, or invalidate an issue.\n");
     fprintf(fp, "      Assistant- AI / automation. No password. Can create issues and\n");
-    fprintf(fp, "                 update/delete its own issues. Can also comment.\n");
+    fprintf(fp, "                 update/delete its own issues, request a\n");
+    fprintf(fp, "                 condition, clear that condition, and\n");
+    fprintf(fp, "                 comment.\n");
     fprintf(fp, "\n");
     fprintf(fp, "  issue:\n");
     fprintf(fp, "      The central work item. Has a 16-hex ID, content, creator,\n");
-    fprintf(fp, "      status, approver and comments. Status lifecycle is managed\n");
-    fprintf(fp, "      by Users; creation and self-updates are done by Assistants.\n");
+    fprintf(fp, "      issue state, optional requested condition, recorded review\n");
+    fprintf(fp, "      decision details, approver and comments. Assistants create\n");
+    fprintf(fp, "      issues and manage requested conditions; Users review them.\n");
     fprintf(fp, "\n");
     fprintf(fp, "  abbreviation:\n");
     fprintf(fp, "      Both top-level COMMANDs and 'issue' subcommands support\n");
@@ -113,6 +187,8 @@ static void wf_print_semantics(FILE *fp)
     fprintf(fp, "  COMMAND\n");
     fprintf(fp, "      Top-level command. May be abbreviated to a unique prefix\n");
     fprintf(fp, "      (e.g. 'logi' for 'login', 'i' for 'issue').\n");
+    fprintf(fp, "      Entity subcommands under 'user', 'issue', and 'domain'\n");
+    fprintf(fp, "      also use unique-prefix matching (e.g. 'us pas', 'i sh', 'dom cur').\n");
     fprintf(fp, "\n");
     fprintf(fp, "  ISSUE_ID\n");
     fprintf(fp, "      16-character hex identifier of an issue. May be given as a\n");
@@ -124,6 +200,12 @@ static void wf_print_semantics(FILE *fp)
     fprintf(fp, "      directory. You can force another domain with the environment\n");
     fprintf(fp, "      variable WF_DOMAIN (full id or unique short prefix).\n");
     fprintf(fp, "      See also 'wf domain ls' and 'wf domain current'.\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  Review flow\n");
+    fprintf(fp, "      Assistants may attach a requested condition before review.\n");
+    fprintf(fp, "      Users may approve/reject/hold using that condition as-is,\n");
+    fprintf(fp, "      supply an override condition, partially approve, invalidate\n");
+    fprintf(fp, "      only the requested condition, or invalidate the whole issue.\n");
 }
 
 static void wf_print_usecases(FILE *fp)
@@ -131,17 +213,23 @@ static void wf_print_usecases(FILE *fp)
     fprintf(fp, "Common usecases:\n");
     fprintf(fp, "\n");
     fprintf(fp, "  Register an Assistant (no password):\n");
-    fprintf(fp, "      wf passwd assistant Assistant\n");
+    fprintf(fp, "      wf user passwd assistant Assistant\n");
     fprintf(fp, "\n");
     fprintf(fp, "  Login as Assistant and create an issue:\n");
     fprintf(fp, "      eval \"$(wf login assistant)\"\n");
     fprintf(fp, "      wf issue create \"fix the thing\"\n");
     fprintf(fp, "\n");
-    fprintf(fp, "  As a User, review and approve:\n");
+    fprintf(fp, "  As a User, review and approve as requested:\n");
     fprintf(fp, "      eval \"$(wf login)\"\n");
     fprintf(fp, "      wf issue list\n");
     fprintf(fp, "      wf issue show <id>\n");
     fprintf(fp, "      wf issue approve <id> \"looks good\"\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  As an Assistant, request a condition before review:\n");
+    fprintf(fp, "      wf issue request-condition <id> \"only after canary passes\"\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "  As a User, override the requested condition during review:\n");
+    fprintf(fp, "      wf issue approve-with <id> \"only after on-call signs off\" \"acceptable with override\"\n");
     fprintf(fp, "\n");
     fprintf(fp, "  Work with a different directory's domain without cd:\n");
     fprintf(fp, "      WF_DOMAIN=8bae3411 wf issue list\n");
@@ -152,9 +240,13 @@ static void wf_print_usecases(FILE *fp)
 
 static int cmd_login(const struct wf_domain *domain, int argc, char **argv)
 {
+    if (argc == 1 && (wf_streq(argv[0], "help") || wf_streq(argv[0], "--help") || wf_streq(argv[0], "-h"))) {
+        wf_print_login_usage(stdout);
+        return 0;
+    }
     const char *username = argc >= 1 ? argv[0] : "user";
     if (argc > 1) {
-        fprintf(stderr, "usage: wf login [USERNAME]\n");
+        wf_print_login_usage(stderr);
         return 1;
     }
     return wf_auth_login(domain, username);
@@ -163,10 +255,12 @@ static int cmd_login(const struct wf_domain *domain, int argc, char **argv)
 static int cmd_logout(const struct wf_domain *domain, int argc, char **argv)
 {
     (void)domain;
-    (void)argc;
-    (void)argv;
+    if (argc == 1 && (wf_streq(argv[0], "help") || wf_streq(argv[0], "--help") || wf_streq(argv[0], "-h"))) {
+        wf_print_logout_usage(stdout);
+        return 0;
+    }
     if (argc != 0) {
-        fprintf(stderr, "usage: wf logout\n");
+        wf_print_logout_usage(stderr);
         return 1;
     }
     return wf_auth_logout(domain);
@@ -177,8 +271,13 @@ static int cmd_version(const struct wf_domain *domain, int argc, char **argv)
     (void)domain;
     (void)argv;
 
+    if (argc == 1 && (wf_streq(argv[0], "help") || wf_streq(argv[0], "--help") || wf_streq(argv[0], "-h"))) {
+        wf_print_version_usage(stdout);
+        return 0;
+    }
+
     if (argc != 0) {
-        fprintf(stderr, "usage: wf version\n");
+        wf_print_version_usage(stderr);
         return 1;
     }
 
@@ -220,13 +319,7 @@ static int cmd_user(const struct wf_domain *domain, int argc, char **argv)
     const char *sub = (argc >= 1 ? argv[0] : NULL);
 
     if (sub == NULL || wf_streq(sub, "help") || wf_streq(sub, "--help") || wf_streq(sub, "-h")) {
-        fprintf(stdout,
-            "usage: wf user COMMAND\n"
-            "  Entity: user (list + create + password management)\n"
-            "  wf user list\n"
-            "  wf user create USERNAME [User|Assistant]\n"
-            "  wf user passwd USERNAME [User|Assistant]\n");
-        fprintf(stdout, "\nSee 'wf help concepts' (actor / role section).\n");
+        wf_user_usage(stdout);
         return (sub == NULL ? 1 : 0);
     }
 
@@ -298,14 +391,7 @@ static int cmd_domain(const struct wf_domain *domain, int argc, char **argv)
                 return 0;
             }
         }
-        fprintf(stdout,
-            "usage: wf domain COMMAND\n"
-            "  wf domain list\n"
-            "  wf domain create\n"
-            "  wf domain show [id|short]\n"
-            "  wf domain delete <id|short>\n"
-            "  wf domain status\n");
-        fprintf(stdout, "\nSee 'wf help concepts' (domain section) and 'wf help semantics'.\n");
+        wf_domain_usage(stdout);
         return (sub == NULL ? 1 : 0);
     }
 
