@@ -12,15 +12,15 @@ static void wf_print_overview(FILE *fp, const char *program_name)
 {
     fprintf(fp, "usage: %s COMMAND [ARGS...]\n", program_name);
     fprintf(fp, "\n");
-    fprintf(fp, "Groups:\n");
-    fprintf(fp, "  auth                  user/assistant registration and session management\n");
-    fprintf(fp, "  issue                 create, inspect and advance issues\n");
-    fprintf(fp, "  domain                inspect and manage domain roots\n");
+    fprintf(fp, "Entities:\n");
+    fprintf(fp, "  issue     the primary work item (CRUD + workflow actions)\n");
+    fprintf(fp, "  domain    isolation boundary and data root (list/create/show/delete)\n");
+    fprintf(fp, "  user      human or assistant identity\n");
     fprintf(fp, "\n");
     fprintf(fp, "Commands:\n");
-    fprintf(fp, "  wf passwd [USERNAME] [User|Assistant]\n");
     fprintf(fp, "  wf login [USERNAME]\n");
     fprintf(fp, "  wf logout\n");
+    fprintf(fp, "  wf user COMMAND ...\n");
     fprintf(fp, "  wf issue COMMAND ...\n");
     fprintf(fp, "  wf domain COMMAND ...\n");
     fprintf(fp, "\n");
@@ -136,17 +136,6 @@ static void wf_print_usecases(FILE *fp)
     fprintf(fp, "      wf domain ls\n");
 }
 
-static int cmd_passwd(const struct wf_domain *domain, int argc, char **argv)
-{
-    const char *username = argc >= 1 ? argv[0] : "user";
-    const char *role = argc >= 2 ? argv[1] : "User";
-    if (argc > 2) {
-        fprintf(stderr, "usage: wf passwd [USERNAME] [User|Assistant]\n");
-        return 1;
-    }
-    return wf_auth_passwd(domain, username, role);
-}
-
 static int cmd_login(const struct wf_domain *domain, int argc, char **argv)
 {
     const char *username = argc >= 1 ? argv[0] : "user";
@@ -198,6 +187,77 @@ static int cmd_issue(const struct wf_domain *domain, int argc, char **argv)
     return wf_issue_command(domain, &user, argc + 1, argv - 1);
 }
 
+static int cmd_user(const struct wf_domain *domain, int argc, char **argv)
+{
+    const char *sub = (argc >= 1 ? argv[0] : NULL);
+
+    if (sub == NULL || wf_streq(sub, "help") || wf_streq(sub, "--help") || wf_streq(sub, "-h")) {
+        fprintf(stdout,
+            "usage: wf user COMMAND\n"
+            "  Entity: user (list + create + password management)\n"
+            "  wf user list\n"
+            "  wf user create USERNAME [User|Assistant]\n"
+            "  wf user passwd USERNAME [User|Assistant]\n");
+        fprintf(stdout, "\nSee 'wf help concepts' (actor / role section).\n");
+        return (sub == NULL ? 1 : 0);
+    }
+
+    {
+        const char *usersubs[] = {"list", "create", "passwd", NULL};
+        const char *matched = NULL;
+        enum wf_match_result mres = wf_match_prefix(usersubs, sub, &matched);
+
+        if (mres == WF_MATCH_AMBIGUOUS) {
+            fprintf(stderr, "ambiguous user command: %s. See 'wf help semantics'.\n", sub);
+            return 1;
+        }
+        if (mres != WF_MATCH_EXACT && mres != WF_MATCH_PREFIX) {
+            fprintf(stderr, "unknown user command: %s. See 'wf help concepts'.\n", sub);
+            return 1;
+        }
+
+        if (strcmp(matched, "list") == 0) {
+            /* simple entity list: read the users file of the domain */
+            char path[PATH_MAX];
+            FILE *f;
+            char line[1024];
+            int written = snprintf(path, sizeof(path), "%s/users.tsv", domain->root);
+            if (written < 0 || (size_t)written >= sizeof(path)) return 1;
+            f = fopen(path, "r");
+            if (f == NULL) {
+                perror(path);
+                return 1;
+            }
+            while (fgets(line, sizeof(line), f)) {
+                char *fields[4];
+                wf_trim_newline(line);
+                if (wf_split_tsv(line, fields, 4) >= 2) {
+                    printf("%s\t%s\n", fields[0], fields[1]);
+                }
+            }
+            fclose(f);
+            return 0;
+        } else if (strcmp(matched, "create") == 0) {
+            const char *username = (argc >= 2 ? argv[1] : NULL);
+            const char *role = (argc >= 3 ? argv[2] : "User");
+            if (!username) {
+                fprintf(stderr, "usage: wf user create USERNAME [User|Assistant]\n");
+                return 1;
+            }
+            return wf_auth_passwd(domain, username, role);
+        } else if (strcmp(matched, "passwd") == 0) {
+            const char *username = (argc >= 2 ? argv[1] : NULL);
+            const char *role = (argc >= 3 ? argv[2] : NULL);
+            if (!username) {
+                fprintf(stderr, "usage: wf user passwd USERNAME [User|Assistant]\n");
+                return 1;
+            }
+            return wf_auth_passwd(domain, username, role ? role : "User");
+        }
+    }
+    return 1;
+}
+
 static int cmd_domain(const struct wf_domain *domain, int argc, char **argv)
 {
     const char *sub = (argc >= 1 ? argv[0] : NULL);
@@ -212,18 +272,18 @@ static int cmd_domain(const struct wf_domain *domain, int argc, char **argv)
         }
         fprintf(stdout,
             "usage: wf domain COMMAND\n"
+            "  wf domain list\n"
             "  wf domain create\n"
+            "  wf domain show [id|short]\n"
             "  wf domain delete <id|short>\n"
-            "  wf domain ls\n"
-            "  wf domain current\n"
             "  wf domain status\n");
         fprintf(stdout, "\nSee 'wf help concepts' (domain section) and 'wf help semantics'.\n");
         return (sub == NULL ? 1 : 0);
     }
 
-    /* use the shared prefix matcher for domain subcommands */
+    /* use the shared prefix matcher for domain subcommands (entity CRUD style) */
     {
-        const char *domsubs[] = {"create", "delete", "ls", "current", "status", NULL};
+        const char *domsubs[] = {"list", "create", "show", "delete", "status", "ls", "current", NULL};
         const char *matched = NULL;
         enum wf_match_result mres = wf_match_prefix(domsubs, sub, &matched);
 
@@ -236,15 +296,27 @@ static int cmd_domain(const struct wf_domain *domain, int argc, char **argv)
             return 1;
         }
 
-        if (strcmp(matched, "create") == 0) {
+        /* normalize aliases for CRUD consistency */
+        const char *norm = matched;
+        if (strcmp(matched, "ls") == 0) norm = "list";
+        if (strcmp(matched, "current") == 0) norm = "show";
+
+        if (strcmp(norm, "create") == 0) {
             struct wf_domain tmp;
             return wf_domain_create(&tmp);
-        } else if (strcmp(matched, "delete") == 0) {
+        } else if (strcmp(norm, "delete") == 0) {
             const char *target = (argc >= 2 ? argv[1] : domain->id);
             return wf_domain_delete(target);
-        } else if (strcmp(matched, "ls") == 0) {
+        } else if (strcmp(norm, "list") == 0) {
             return wf_domain_list(stdout);
-        } else if (strcmp(matched, "current") == 0 || strcmp(matched, "status") == 0) {
+        } else if (strcmp(norm, "show") == 0 || strcmp(norm, "status") == 0) {
+            /* show without arg = current; with arg = specific domain */
+            if (argc >= 2 && !wf_streq(argv[1], "show") && !wf_streq(argv[1], "status")) {
+                /* user gave an id after show/status */
+                struct wf_domain target;
+                if (wf_domain_resolve_by_id(&target, argv[1]) != 0) return 1;
+                return wf_domain_current(&target, stdout);
+            }
             return wf_domain_current(domain, stdout);
         }
     }
@@ -252,9 +324,9 @@ static int cmd_domain(const struct wf_domain *domain, int argc, char **argv)
 }
 
 static const struct wf_subcommand commands[] = {
-    {"passwd", cmd_passwd},
     {"login", cmd_login},
     {"logout", cmd_logout},
+    {"user", cmd_user},
     {"issue", cmd_issue},
     {"domain", cmd_domain},
     {NULL, NULL}

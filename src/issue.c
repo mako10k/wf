@@ -557,8 +557,10 @@ void wf_issue_usage(FILE *fp)
     fprintf(fp, "  (COMMAND may be abbreviated to a unique prefix.)\n");
     fprintf(fp, "  ISSUE_ID may be abbreviated to a unique prefix of 2 or more characters.\n");
     fprintf(fp, "\n");
-    fprintf(fp, "  wf issue create CONTENTS\n");
+    fprintf(fp, "  Entity: issue (standard list + CRUD + workflow actions)\n");
+    fprintf(fp, "\n");
     fprintf(fp, "  wf issue list\n");
+    fprintf(fp, "  wf issue create CONTENTS\n");
     fprintf(fp, "  wf issue show ISSUE_ID\n");
     fprintf(fp, "  wf issue update ISSUE_ID CONTENTS\n");
     fprintf(fp, "  wf issue delete ISSUE_ID\n");
