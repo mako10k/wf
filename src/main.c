@@ -27,6 +27,7 @@ static void wf_print_overview(FILE *fp, const char *program_name)
     fprintf(fp, "Commands:\n");
     fprintf(fp, "  wf exec [USERNAME] [-- COMMAND ...]\n");
     fprintf(fp, "  wf env COMMAND\n");
+    fprintf(fp, "  wf whoami          # current wf session user\n");
     fprintf(fp, "  wf version\n");
     fprintf(fp, "  wf user COMMAND ...\n");
     fprintf(fp, "  wf issue COMMAND ...\n");
@@ -50,6 +51,7 @@ static void wf_print_semantics(FILE *fp);
 static void wf_print_usecases(FILE *fp);
 static void wf_print_exec_usage(FILE *fp);
 static void wf_print_env_usage(FILE *fp);
+static void wf_print_whoami_usage(FILE *fp);
 static void wf_print_version_usage(FILE *fp);
 static void wf_user_usage(FILE *fp);
 static void wf_domain_usage(FILE *fp);
@@ -70,6 +72,13 @@ static void wf_print_env_usage(FILE *fp)
     fprintf(fp, "usage: wf env COMMAND\n");
     fprintf(fp, "  wf env export [USERNAME]\n");
     fprintf(fp, "  wf env clear\n");
+}
+
+static void wf_print_whoami_usage(FILE *fp)
+{
+    fprintf(fp, "usage: wf whoami\n");
+    fprintf(fp, "  Print the current authenticated wf session username.\n");
+    fprintf(fp, "  Requires an active session from 'wf exec' or 'wf env export'.\n");
 }
 
 static void wf_print_version_usage(FILE *fp)
@@ -132,6 +141,10 @@ static void wf_help(FILE *fp, const char *topic)
     }
     if (wf_streq(topic, "env")) {
         wf_print_env_usage(fp);
+        return;
+    }
+    if (wf_streq(topic, "whoami")) {
+        wf_print_whoami_usage(fp);
         return;
     }
     if (wf_streq(topic, "version")) {
@@ -244,6 +257,9 @@ static void wf_print_usecases(FILE *fp)
     fprintf(fp, "      eval \"$(wf env export assistant)\"\n");
     fprintf(fp, "      eval \"$(wf env clear)\"\n");
     fprintf(fp, "\n");
+    fprintf(fp, "  Show the current authenticated wf session user:\n");
+    fprintf(fp, "      wf whoami\n");
+    fprintf(fp, "\n");
     fprintf(fp, "  As an Assistant, request a condition before review:\n");
     fprintf(fp, "      wf issue request-condition <id> \"only after canary passes\"\n");
     fprintf(fp, "\n");
@@ -345,6 +361,25 @@ static int cmd_version(const struct wf_domain *domain, int argc, char **argv)
     }
 
     wf_print_version(stdout);
+    return 0;
+}
+
+static int cmd_whoami(const struct wf_domain *domain, int argc, char **argv)
+{
+    struct wf_user user;
+
+    if (argc == 1 && (wf_streq(argv[0], "help") || wf_streq(argv[0], "--help") || wf_streq(argv[0], "-h"))) {
+        wf_print_whoami_usage(stdout);
+        return 0;
+    }
+    if (argc != 0) {
+        wf_print_whoami_usage(stderr);
+        return 1;
+    }
+    if (wf_auth_current_user(domain, &user) != 0) {
+        return 1;
+    }
+    printf("%s\n", user.username);
     return 0;
 }
 
@@ -505,6 +540,7 @@ static int cmd_domain(const struct wf_domain *domain, int argc, char **argv)
 static const struct wf_subcommand commands[] = {
     {"exec", cmd_exec},
     {"env", cmd_env},
+    {"whoami", cmd_whoami},
     {"version", cmd_version},
     {"user", cmd_user},
     {"issue", cmd_issue},

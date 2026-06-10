@@ -119,6 +119,9 @@ wf user create BOT Assistant
 eval "$(wf env export USERNAME)"
 eval "$(wf env clear)"
 
+# Show the current authenticated wf session username
+wf whoami
+
 # Run one command with a temporary session
 wf exec USERNAME -- COMMAND [ARGS...]
 
@@ -132,6 +135,8 @@ Rules:
 - `wf user passwd` may create a new user or update an existing user's credentials/role.
 - `wf env export` defaults to `wf env export user`.
 - `wf exec` defaults to `wf exec user`.
+- `wf whoami` prints the current authenticated wf session username, not the OS login name.
+- `wf whoami` requires an active session from `wf exec` or `wf env export`.
 - The default `user` account is not auto-created; register it first with `wf user passwd user User` before relying on the default.
 - User `wf exec` / `wf env export` must read the password from TTY.
 - Assistant `wf exec assistant` / `wf env export assistant` must not ask for a password.
@@ -147,7 +152,7 @@ Rules:
 Command abbreviation:
 
 - Full commands are the primary public interface. Abbreviations are convenience shortcuts.
-- Top-level commands (`exec`, `env`, `version`, `user`, `issue`, `domain`) and entity subcommands under `env`, `user`, `issue`, and `domain` may be abbreviated to a unique prefix (e.g. `wf ex`, `wf en ex`, `wf ver`, `wf us pas`, `wf i cr`, `wf dom cur`).
+- Top-level commands (`exec`, `env`, `whoami`, `version`, `user`, `issue`, `domain`) and entity subcommands under `env`, `user`, `issue`, and `domain` may be abbreviated to a unique prefix (e.g. `wf ex`, `wf en ex`, `wf who`, `wf ver`, `wf us pas`, `wf i cr`, `wf dom cur`).
 - On ambiguity the command prints "ambiguous command: ..." (or "ambiguous issue command: ...") and usage.
 
 ## Issue Commands

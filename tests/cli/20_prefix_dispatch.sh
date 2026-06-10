@@ -46,6 +46,14 @@ case "$out" in
   *) printf '  (got: %s)\n' "$out" ;;
 esac
 
+echo "=== 'who extra' should reach whoami handler and reject extra args ==="
+out=$($RUN "$WF" who extra 2>&1 || true)
+case "$out" in
+  *"unknown command"*) echo "FAIL: 'who' was treated as unknown" >&2; exit 1 ;;
+  *"usage: wf whoami"*) echo "  (reached whoami path, good)" ;;
+  *) printf '  (got: %s)\n' "$out" ;;
+esac
+
 echo "=== 'us pas assistant Assistant' should reach user passwd handler (assistant skips password read) ==="
 out=$($RUN "$WF" us pas assistant Assistant 2>&1 || true)
 case "$out" in
