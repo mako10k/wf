@@ -1,12 +1,19 @@
 #define _POSIX_C_SOURCE 200809L
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "auth.h"
 #include "cmd.h"
 #include "domain.h"
 #include "issue.h"
+#include "storage.h"
 #include "util.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static void wf_print_overview(FILE *fp, const char *program_name)
 {
@@ -20,6 +27,7 @@ static void wf_print_overview(FILE *fp, const char *program_name)
     fprintf(fp, "Commands:\n");
     fprintf(fp, "  wf login [USERNAME]\n");
     fprintf(fp, "  wf logout\n");
+    fprintf(fp, "  wf version\n");
     fprintf(fp, "  wf user COMMAND ...\n");
     fprintf(fp, "  wf issue COMMAND ...\n");
     fprintf(fp, "  wf domain COMMAND ...\n");
@@ -27,8 +35,14 @@ static void wf_print_overview(FILE *fp, const char *program_name)
     fprintf(fp, "Help:\n");
     fprintf(fp, "  wf help [COMMAND|TOPIC]\n");
     fprintf(fp, "  wf COMMAND --help\n");
+    fprintf(fp, "  wf --version\n");
     fprintf(fp, "\n");
     fprintf(fp, "Topics: concepts, semantics, usecases\n");
+}
+
+static void wf_print_version(FILE *fp)
+{
+    fprintf(fp, "%s\n", PACKAGE_STRING);
 }
 
 static void wf_print_concepts(FILE *fp);
@@ -156,6 +170,20 @@ static int cmd_logout(const struct wf_domain *domain, int argc, char **argv)
         return 1;
     }
     return wf_auth_logout(domain);
+}
+
+static int cmd_version(const struct wf_domain *domain, int argc, char **argv)
+{
+    (void)domain;
+    (void)argv;
+
+    if (argc != 0) {
+        fprintf(stderr, "usage: wf version\n");
+        return 1;
+    }
+
+    wf_print_version(stdout);
+    return 0;
 }
 
 static int cmd_issue(const struct wf_domain *domain, int argc, char **argv)
@@ -326,6 +354,7 @@ static int cmd_domain(const struct wf_domain *domain, int argc, char **argv)
 static const struct wf_subcommand commands[] = {
     {"login", cmd_login},
     {"logout", cmd_logout},
+    {"version", cmd_version},
     {"user", cmd_user},
     {"issue", cmd_issue},
     {"domain", cmd_domain},
@@ -339,14 +368,13 @@ int main(int argc, char **argv)
     enum wf_match_result res;
     const char *forced_domain = getenv("WF_DOMAIN");
 
-    if (forced_domain && forced_domain[0]) {
-        if (wf_domain_resolve_by_id(&domain, forced_domain) != 0) {
+    if (argc >= 2 && wf_streq(argv[1], "--version")) {
+        if (argc != 2) {
+            fprintf(stderr, "usage: wf --version\n");
             return 1;
         }
-    } else {
-        if (wf_domain_resolve(&domain) != 0) {
-            return 1;
-        }
+        wf_print_version(stdout);
+        return 0;
     }
 
     if (argc < 2 || wf_streq(argv[1], "help") || wf_streq(argv[1], "--help") || wf_streq(argv[1], "-h")) {
@@ -357,6 +385,16 @@ int main(int argc, char **argv)
             wf_help((argc < 2 ? stderr : stdout), NULL);
         }
         return argc < 2 ? 1 : 0;
+    }
+
+    if (forced_domain && forced_domain[0]) {
+        if (wf_domain_resolve_by_id(&domain, forced_domain) != 0) {
+            return 1;
+        }
+    } else {
+        if (wf_domain_resolve(&domain) != 0) {
+            return 1;
+        }
     }
 
     res = wf_cmd_match(commands, argv[1], &match);
