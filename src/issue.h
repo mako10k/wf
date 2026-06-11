@@ -14,4 +14,6 @@ int wf_issue_resolve_id(const struct wf_domain *domain, const char *partial, cha
 
 void wf_issue_usage(FILE *fp);
 
+void wf_issue_print_completion_words(FILE *fp);
+
 #endif

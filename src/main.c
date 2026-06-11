@@ -56,6 +56,96 @@ static void wf_print_whoami_usage(FILE *fp);
 static void wf_print_version_usage(FILE *fp);
 static void wf_user_usage(FILE *fp);
 static void wf_domain_usage(FILE *fp);
+static int wf_complete(int argc, char **argv);
+
+static void wf_print_words(FILE *fp, const char *const *words)
+{
+    int index;
+
+    for (index = 0; words[index] != NULL; index += 1) {
+        fprintf(fp, "%s\n", words[index]);
+    }
+}
+
+static int wf_complete(int argc, char **argv)
+{
+    static const char *const top_words[] = {
+        "help", "exec", "env", "whoami", "version", "user", "issue", "domain",
+        "--help", "-h", "--version", NULL
+    };
+    static const char *const help_words[] = {
+        "concepts", "semantics", "usecases", "examples", "exec", "env",
+        "whoami", "version", "issue", "user", "domain", NULL
+    };
+    static const char *const env_words[] = {"help", "export", "clear", "--help", "-h", NULL};
+    static const char *const user_words[] = {"help", "list", "create", "passwd", "--help", "-h", NULL};
+    static const char *const domain_words[] = {
+        "help", "list", "create", "show", "delete", "status", "ls", "current", "--help", "-h", NULL
+    };
+    static const char *const issue_help_words[] = {"help", "concepts", "semantics", "usecases", "examples", NULL};
+    static const char *const role_words[] = {"User", "Assistant", NULL};
+    int wordc;
+
+    wordc = argc - 2;
+    argv += 2;
+
+    if (wordc <= 0) {
+        wf_print_words(stdout, top_words);
+        return 0;
+    }
+
+    if (wf_streq(argv[0], "help")) {
+        if (wordc == 1) {
+            wf_print_words(stdout, help_words);
+        }
+        return 0;
+    }
+    if (wf_streq(argv[0], "domain") && wordc == 2 && wf_streq(argv[1], "help")) {
+        wf_print_words(stdout, help_words);
+        return 0;
+    }
+    if (wf_streq(argv[0], "env")) {
+        if (wordc == 1) {
+            wf_print_words(stdout, env_words);
+        }
+        return 0;
+    }
+    if (wf_streq(argv[0], "user")) {
+        if (wordc == 1) {
+            wf_print_words(stdout, user_words);
+        } else if (wordc == 3 && (wf_streq(argv[1], "create") || wf_streq(argv[1], "passwd"))) {
+            wf_print_words(stdout, role_words);
+        }
+        return 0;
+    }
+    if (wf_streq(argv[0], "domain")) {
+        if (wordc == 1) {
+            wf_print_words(stdout, domain_words);
+        }
+        return 0;
+    }
+    if (wf_streq(argv[0], "issue")) {
+        if (wordc == 1) {
+            fprintf(stdout, "%s\n", "help");
+            wf_issue_print_completion_words(stdout);
+            fprintf(stdout, "%s\n", "--help");
+            fprintf(stdout, "%s\n", "-h");
+        } else if (wordc == 2 && wf_streq(argv[1], "help")) {
+            wf_print_words(stdout, issue_help_words);
+        }
+        return 0;
+    }
+    if (wf_streq(argv[0], "exec")) {
+        if (wordc <= 1) {
+            fprintf(stdout, "%s\n", "--");
+            fprintf(stdout, "%s\n", "--help");
+            fprintf(stdout, "%s\n", "-h");
+        }
+        return 0;
+    }
+
+    return 0;
+}
 
 static void wf_print_exec_usage(FILE *fp)
 {
@@ -555,6 +645,10 @@ int main(int argc, char **argv)
     const char *forced_domain = getenv("WF_DOMAIN");
 
     wf_i18n_init();
+
+    if (argc >= 2 && wf_streq(argv[1], "__complete")) {
+        return wf_complete(argc, argv);
+    }
 
     if (argc >= 2 && wf_streq(argv[1], "--version")) {
         if (argc != 2) {

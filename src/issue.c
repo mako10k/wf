@@ -1381,6 +1381,15 @@ static const struct wf_issue_subcommand issue_commands[] = {
     {NULL, NULL}
 };
 
+void wf_issue_print_completion_words(FILE *fp)
+{
+    const struct wf_issue_subcommand *entry;
+
+    for (entry = issue_commands; entry->name != NULL; entry += 1) {
+        fprintf(fp, "%s\n", entry->name);
+    }
+}
+
 int wf_issue_command(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
 {
     if (argc < 2 || wf_streq(argv[1], "help") || wf_streq(argv[1], "--help") || wf_streq(argv[1], "-h")) {

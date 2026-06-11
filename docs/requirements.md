@@ -159,6 +159,13 @@ Localization:
 - `WF_LOCALEDIR` is a development-time override. After installation, catalogs are loaded from `localedir` (for example `/usr/local/share/locale`).
 - `make locale` compiles translation catalogs, `make pot` regenerates `po/wf.pot`, and `make update-po` merges new msgids into `po/ja.po`.
 
+Bash completion:
+
+- `make install` installs the completion script to `$(datadir)/bash-completion/completions/wf` (typically `/usr/local/share/bash-completion/completions/wf` with the default prefix), and `make uninstall` removes it again.
+- Automatic activation still depends on the host shell loading its bash-completion package or equivalent startup hooks. In practice, after installation, start a new interactive bash session first. If your environment does not load bash-completion automatically, a common manual check is `. /usr/share/bash-completion/bash_completion` before retrying `wf <TAB>`.
+- If tab completion does not respond, first run `command -v wf` and confirm it resolves to the installed binary, then check that the completion file exists at the installed path (for example `ls /usr/local/share/bash-completion/completions/wf`). After that, verify whether bash-completion is active in the current shell with `declare -F _init_completion`.
+- The completion helper is an internal interface exposed as `wf __complete ...`; it is intended for shell integration and tests, not as a user-facing subcommand.
+
 Command abbreviation:
 
 - Full commands are the primary public interface. Abbreviations are convenience shortcuts.

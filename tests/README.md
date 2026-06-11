@@ -33,6 +33,12 @@ If that locale is unavailable, the script skips instead of failing. This skip
 only covers the OS locale prerequisite; `make test` still expects gettext
 tooling to be installed so `make locale` can rebuild `po/locale/ja/LC_MESSAGES/wf.mo`.
 
+The bash completion smoke test uses the hidden `wf __complete ...` helper so
+the completion script can stay thin and keep completion candidates owned by
+the CLI. Issue subcommands are emitted from the same table used by issue
+dispatch; the other completion sets are kept in the CLI helper instead of in
+the shell script.
+
 ## What is covered
 
 - Unit tests for the core `wf_match_prefix` abstraction (used by both

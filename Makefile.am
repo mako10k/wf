@@ -3,10 +3,11 @@ SUBDIRS = src
 LINGUAS = ja
 PO_DIR = $(top_srcdir)/po
 PO_BUILD_DIR = $(top_builddir)/po
+COMPLETION_DIR = $(top_srcdir)/completions
 JA_MO = $(PO_BUILD_DIR)/locale/ja/LC_MESSAGES/$(PACKAGE).mo
 MO_FILES = $(JA_MO)
 
-EXTRA_DIST = docs/requirements.md tests po/ja.po po/wf.pot
+EXTRA_DIST = docs/requirements.md tests po/ja.po po/wf.pot completions/wf.bash
 
 # --- Testing ----------------------------------------------------------
 # Run the full test suite with the standard "make check".
@@ -48,6 +49,13 @@ install-data-local: $(MO_FILES)
 	@mkdir -p "$(DESTDIR)$(localedir)/ja/LC_MESSAGES"
 	$(INSTALL_DATA) "$(PO_BUILD_DIR)/locale/ja/LC_MESSAGES/$(PACKAGE).mo" \
 	  "$(DESTDIR)$(localedir)/ja/LC_MESSAGES/$(PACKAGE).mo"
+	@mkdir -p "$(DESTDIR)$(datadir)/bash-completion/completions"
+	$(INSTALL_DATA) "$(COMPLETION_DIR)/wf.bash" \
+	  "$(DESTDIR)$(datadir)/bash-completion/completions/wf"
+
+uninstall-local:
+	rm -f "$(DESTDIR)$(localedir)/ja/LC_MESSAGES/$(PACKAGE).mo"
+	rm -f "$(DESTDIR)$(datadir)/bash-completion/completions/wf"
 
 clean-local:
 	rm -rf $(PO_BUILD_DIR)/locale
