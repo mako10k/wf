@@ -1,14 +1,56 @@
 SUBDIRS = src
 
-EXTRA_DIST = docs/requirements.md tests
+LINGUAS = ja
+PO_DIR = $(top_srcdir)/po
+PO_BUILD_DIR = $(top_builddir)/po
+JA_MO = $(PO_BUILD_DIR)/locale/ja/LC_MESSAGES/$(PACKAGE).mo
+MO_FILES = $(JA_MO)
+
+EXTRA_DIST = docs/requirements.md tests po/ja.po po/wf.pot
 
 # --- Testing ----------------------------------------------------------
 # Run the full test suite with the standard "make check".
 check-local: test
 
 .PHONY: test test-unit test-cli
+.PHONY: locale pot update-po
 
-test: test-unit test-cli
+locale: $(MO_FILES)
+
+$(JA_MO): $(PO_DIR)/ja.po $(PO_DIR)/wf.pot
+	@mkdir -p "$(PO_BUILD_DIR)/locale/ja/LC_MESSAGES"
+	@if test "x$(MSGFMT)" = xfalse; then \
+	  echo "msgfmt not found; install gettext to build translations." >&2; \
+	  exit 1; \
+	fi
+	$(MSGFMT) -c -o "$@" "$<"
+
+pot:
+	@mkdir -p $(PO_DIR)
+	@if test "x$(XGETTEXT)" = xfalse; then \
+	  echo "xgettext not found; install gettext to regenerate po/wf.pot." >&2; \
+	  exit 1; \
+	fi
+	$(XGETTEXT) --from-code=UTF-8 --keyword=_ --keyword=N_ --sort-output \
+	  --package-name='$(PACKAGE)' --package-version='$(VERSION)' \
+	  -o $(PO_DIR)/wf.pot $(top_srcdir)/src/*.c $(top_srcdir)/src/*.h
+
+update-po: pot
+	@if test "x$(MSGMERGE)" = xfalse; then \
+	  echo "msgmerge not found; install gettext to update po/ja.po." >&2; \
+	  exit 1; \
+	fi
+	$(MSGMERGE) --update $(PO_DIR)/ja.po $(PO_DIR)/wf.pot
+
+test: locale test-unit test-cli
+
+install-data-local: $(MO_FILES)
+	@mkdir -p "$(DESTDIR)$(localedir)/ja/LC_MESSAGES"
+	$(INSTALL_DATA) "$(PO_BUILD_DIR)/locale/ja/LC_MESSAGES/$(PACKAGE).mo" \
+	  "$(DESTDIR)$(localedir)/ja/LC_MESSAGES/$(PACKAGE).mo"
+
+clean-local:
+	rm -rf $(PO_BUILD_DIR)/locale
 
 test-unit:
 	@echo "=== Unit tests (matcher etc.) ==="

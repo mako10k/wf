@@ -7,6 +7,7 @@
 #include "auth.h"
 #include "cmd.h"
 #include "domain.h"
+#include "i18n.h"
 #include "issue.h"
 #include "storage.h"
 #include "util.h"
@@ -17,28 +18,28 @@
 
 static void wf_print_overview(FILE *fp, const char *program_name)
 {
-    fprintf(fp, "usage: %s COMMAND [ARGS...]\n", program_name);
+    fprintf(fp, _("usage: %s COMMAND [ARGS...]\n"), program_name);
     fprintf(fp, "\n");
-    fprintf(fp, "Entities:\n");
-    fprintf(fp, "  issue     the primary work item (CRUD + workflow actions)\n");
-    fprintf(fp, "  domain    isolation boundary and data root (list/create/show/delete)\n");
-    fprintf(fp, "  user      human or assistant identity\n");
+    fprintf(fp, _("Entities:\n"));
+    fprintf(fp, _("  issue     the primary work item (CRUD + workflow actions)\n"));
+    fprintf(fp, _("  domain    isolation boundary and data root (list/create/show/delete)\n"));
+    fprintf(fp, _("  user      human or assistant identity\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "Commands:\n");
-    fprintf(fp, "  wf exec [USERNAME] [-- COMMAND ...]\n");
-    fprintf(fp, "  wf env COMMAND\n");
-    fprintf(fp, "  wf whoami          # current wf session user\n");
-    fprintf(fp, "  wf version\n");
-    fprintf(fp, "  wf user COMMAND ...\n");
-    fprintf(fp, "  wf issue COMMAND ...\n");
-    fprintf(fp, "  wf domain COMMAND ...\n");
+    fprintf(fp, _("Commands:\n"));
+    fprintf(fp, _("  wf exec [USERNAME] [-- COMMAND ...]\n"));
+    fprintf(fp, _("  wf env COMMAND\n"));
+    fprintf(fp, _("  wf whoami          # current wf session user\n"));
+    fprintf(fp, _("  wf version\n"));
+    fprintf(fp, _("  wf user COMMAND ...\n"));
+    fprintf(fp, _("  wf issue COMMAND ...\n"));
+    fprintf(fp, _("  wf domain COMMAND ...\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "Help:\n");
-    fprintf(fp, "  wf help [COMMAND|TOPIC]\n");
-    fprintf(fp, "  wf COMMAND --help\n");
-    fprintf(fp, "  wf --version\n");
+    fprintf(fp, _("Help:\n"));
+    fprintf(fp, _("  wf help [COMMAND|TOPIC]\n"));
+    fprintf(fp, _("  wf COMMAND --help\n"));
+    fprintf(fp, _("  wf --version\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "Topics: concepts, semantics, usecases\n");
+    fprintf(fp, _("Topics: concepts, semantics, usecases\n"));
 }
 
 static void wf_print_version(FILE *fp)
@@ -58,61 +59,59 @@ static void wf_domain_usage(FILE *fp);
 
 static void wf_print_exec_usage(FILE *fp)
 {
-    fprintf(fp, "usage: wf exec [USERNAME] [-- COMMAND [ARGS...]]\n");
-    fprintf(fp, "       wf exec -- COMMAND [ARGS...]\n");
+    fprintf(fp, _("usage: wf exec [USERNAME] [-- COMMAND [ARGS...]]\n"));
+    fprintf(fp, _("       wf exec -- COMMAND [ARGS...]\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "Interactive shell mode (no COMMAND):\n");
-    fprintf(fp, "  - prints a start banner to stderr when the shell begins\n");
-    fprintf(fp, "  - prints a return banner to stderr after the shell exits\n");
-    fprintf(fp, "  - exports WF_EXEC_USER and WF_EXEC_DOMAIN (domain id)\n");
+    fprintf(fp, _("Interactive shell mode (no COMMAND):\n"));
+    fprintf(fp, _("  - prints a start banner to stderr when the shell begins\n"));
+    fprintf(fp, _("  - prints a return banner to stderr after the shell exits\n"));
+    fprintf(fp, _("  - exports WF_EXEC_USER and WF_EXEC_DOMAIN (domain id)\n"));
 }
 
 static void wf_print_env_usage(FILE *fp)
 {
-    fprintf(fp, "usage: wf env COMMAND\n");
-    fprintf(fp, "  wf env export [USERNAME]\n");
-    fprintf(fp, "  wf env clear\n");
+    fprintf(fp, _("usage: wf env COMMAND\n"));
+    fprintf(fp, _("  wf env export [USERNAME]\n"));
+    fprintf(fp, _("  wf env clear\n"));
 }
 
 static void wf_print_whoami_usage(FILE *fp)
 {
-    fprintf(fp, "usage: wf whoami\n");
-    fprintf(fp, "  Print the current authenticated wf session username.\n");
-    fprintf(fp, "  Requires an active session from 'wf exec' or 'wf env export'.\n");
+    fprintf(fp, _("usage: wf whoami\n"));
+    fprintf(fp, _("  Print the current authenticated wf session username.\n"));
+    fprintf(fp, _("  Requires an active session from 'wf exec' or 'wf env export'.\n"));
 }
 
 static void wf_print_version_usage(FILE *fp)
 {
-    fprintf(fp, "usage: wf version\n");
-    fprintf(fp, "       wf --version\n");
+    fprintf(fp, _("usage: wf version\n"));
+    fprintf(fp, _("       wf --version\n"));
 }
 
 static void wf_user_usage(FILE *fp)
 {
-    fprintf(fp,
-        "usage: wf user COMMAND\n"
-        "  (COMMAND may be abbreviated to a unique prefix.)\n"
-        "  Entity: user (list + create + password management)\n"
-        "  wf user list\n"
-        "  wf user create USERNAME [User|Assistant]\n"
-        "  wf user passwd USERNAME [User|Assistant]\n"
-        "\n"
-        "  create: new user only; fails if USERNAME already exists.\n"
-        "  passwd: create or update credentials/role for USERNAME.\n");
-    fprintf(fp, "\nSee 'wf help concepts' (actor / role section).\n");
+    fprintf(fp, _("usage: wf user COMMAND\n"));
+    fprintf(fp, _("  (COMMAND may be abbreviated to a unique prefix.)\n"));
+    fprintf(fp, _("  Entity: user (list + create + password management)\n"));
+    fprintf(fp, _("  wf user list\n"));
+    fprintf(fp, _("  wf user create USERNAME [User|Assistant]\n"));
+    fprintf(fp, _("  wf user passwd USERNAME [User|Assistant]\n"));
+    fprintf(fp, "\n");
+    fprintf(fp, _("  create: new user only; fails if USERNAME already exists.\n"));
+    fprintf(fp, _("  passwd: create or update credentials/role for USERNAME.\n"));
+    fprintf(fp, _("\nSee 'wf help concepts' (actor / role section).\n"));
 }
 
 static void wf_domain_usage(FILE *fp)
 {
-    fprintf(fp,
-        "usage: wf domain COMMAND\n"
-        "  (COMMAND may be abbreviated to a unique prefix; aliases: ls, current.)\n"
-        "  wf domain list\n"
-        "  wf domain create\n"
-        "  wf domain show [id|short]\n"
-        "  wf domain delete <id|short>\n"
-        "  wf domain status\n");
-    fprintf(fp, "\nSee 'wf help concepts' (domain section) and 'wf help semantics'.\n");
+    fprintf(fp, _("usage: wf domain COMMAND\n"));
+    fprintf(fp, _("  (COMMAND may be abbreviated to a unique prefix; aliases: ls, current.)\n"));
+    fprintf(fp, _("  wf domain list\n"));
+    fprintf(fp, _("  wf domain create\n"));
+    fprintf(fp, _("  wf domain show [id|short]\n"));
+    fprintf(fp, _("  wf domain delete <id|short>\n"));
+    fprintf(fp, _("  wf domain status\n"));
+    fprintf(fp, _("\nSee 'wf help concepts' (domain section) and 'wf help semantics'.\n"));
 }
 
 static void wf_help(FILE *fp, const char *topic)
@@ -165,111 +164,111 @@ static void wf_help(FILE *fp, const char *topic)
     }
 
     /* command-specific help is handled by the individual cmd_* functions */
-    fprintf(fp, "No detailed help for topic '%s'. Try 'wf help concepts' or 'wf help semantics'.\n", topic);
+    fprintf(fp, _("No detailed help for topic '%s'. Try 'wf help concepts' or 'wf help semantics'.\n"), topic);
 }
 
 static void wf_print_concepts(FILE *fp)
 {
-    fprintf(fp, "Concepts:\n");
+    fprintf(fp, _("Concepts:\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  domain:\n");
-    fprintf(fp, "      An isolation boundary. The domain is derived from the current\n");
-    fprintf(fp, "      working directory (SHA-256 of \"wf:<realpath>\"). All data\n");
-    fprintf(fp, "      (users, sessions, issues) for that directory lives under\n");
-    fprintf(fp, "      $XDG_DATA_HOME/wf/domains/<64hex-id>/. Different directories\n");
-    fprintf(fp, "      normally get different domains unless they share the same path\n");
-    fprintf(fp, "      hash. Use 'wf domain ls' to see registered domains and\n");
-    fprintf(fp, "      'WF_DOMAIN=shortid ...' to operate on a non-current domain.\n");
+    fprintf(fp, _("  domain:\n"));
+    fprintf(fp, _("      An isolation boundary. The domain is derived from the current\n"));
+    fprintf(fp, _("      working directory (SHA-256 of \"wf:<realpath>\"). All data\n"));
+    fprintf(fp, _("      (users, sessions, issues) for that directory lives under\n"));
+    fprintf(fp, _("      $XDG_DATA_HOME/wf/domains/<64hex-id>/. Different directories\n"));
+    fprintf(fp, _("      normally get different domains unless they share the same path\n"));
+    fprintf(fp, _("      hash. Use 'wf domain ls' to see registered domains and\n"));
+    fprintf(fp, _("      'WF_DOMAIN=shortid ...' to operate on a non-current domain.\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  actor / role:\n");
-    fprintf(fp, "      User     - human approver. Requires TTY password when\n");
-    fprintf(fp, "                 creating an execution environment with\n");
-    fprintf(fp, "                 'wf exec' or 'wf env export'.\n");
-    fprintf(fp, "                 Can read issues, comment, review issues\n");
-    fprintf(fp, "                 (approve/reject/hold/resume), invalidate a\n");
-    fprintf(fp, "                 requested condition, or invalidate an issue.\n");
-    fprintf(fp, "      Assistant- AI / automation. No password. Can create issues and\n");
-    fprintf(fp, "                 update/delete its own issues, request a\n");
-    fprintf(fp, "                 condition, clear that condition, and\n");
-    fprintf(fp, "                 comment.\n");
+    fprintf(fp, _("  actor / role:\n"));
+    fprintf(fp, _("      User     - human approver. Requires TTY password when\n"));
+    fprintf(fp, _("                 creating an execution environment with\n"));
+    fprintf(fp, _("                 'wf exec' or 'wf env export'.\n"));
+    fprintf(fp, _("                 Can read issues, comment, review issues\n"));
+    fprintf(fp, _("                 (approve/reject/hold/resume), invalidate a\n"));
+    fprintf(fp, _("                 requested condition, or invalidate an issue.\n"));
+    fprintf(fp, _("      Assistant- AI / automation. No password. Can create issues and\n"));
+    fprintf(fp, _("                 update/delete its own issues, request a\n"));
+    fprintf(fp, _("                 condition, clear that condition, and\n"));
+    fprintf(fp, _("                 comment.\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  issue:\n");
-    fprintf(fp, "      The central work item. Has a 16-hex ID, content, creator,\n");
-    fprintf(fp, "      issue state, optional requested condition, recorded review\n");
-    fprintf(fp, "      decision details, approver and comments. Assistants create\n");
-    fprintf(fp, "      issues and manage requested conditions; Users review them.\n");
+    fprintf(fp, _("  issue:\n"));
+    fprintf(fp, _("      The central work item. Has a 16-hex ID, content, creator,\n"));
+    fprintf(fp, _("      issue state, optional requested condition, recorded review\n"));
+    fprintf(fp, _("      decision details, approver and comments. Assistants create\n"));
+    fprintf(fp, _("      issues and manage requested conditions; Users review them.\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  abbreviation:\n");
-    fprintf(fp, "      Both top-level COMMANDs and 'issue' subcommands support\n");
-    fprintf(fp, "      unique prefix matching (exact match wins). ISSUE_IDs support\n");
-    fprintf(fp, "      unique prefixes of 2 or more characters.\n");
-    fprintf(fp, "      Ambiguous input produces a clear error and the relevant usage.\n");
+    fprintf(fp, _("  abbreviation:\n"));
+    fprintf(fp, _("      Both top-level COMMANDs and 'issue' subcommands support\n"));
+    fprintf(fp, _("      unique prefix matching (exact match wins). ISSUE_IDs support\n"));
+    fprintf(fp, _("      unique prefixes of 2 or more characters.\n"));
+    fprintf(fp, _("      Ambiguous input produces a clear error and the relevant usage.\n"));
 }
 
 static void wf_print_semantics(FILE *fp)
 {
-    fprintf(fp, "Semantics:\n");
+    fprintf(fp, _("Semantics:\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  COMMAND\n");
-    fprintf(fp, "      Top-level command. May be abbreviated to a unique prefix\n");
-    fprintf(fp, "      (e.g. 'ex' for 'exec', 'i' for 'issue').\n");
-    fprintf(fp, "      Entity subcommands under 'env', 'user', 'issue', and 'domain'\n");
-    fprintf(fp, "      also use unique-prefix matching (e.g. 'en ex', 'us pas', 'i sh', 'dom cur').\n");
+    fprintf(fp, _("  COMMAND\n"));
+    fprintf(fp, _("      Top-level command. May be abbreviated to a unique prefix\n"));
+    fprintf(fp, _("      (e.g. 'ex' for 'exec', 'i' for 'issue').\n"));
+    fprintf(fp, _("      Entity subcommands under 'env', 'user', 'issue', and 'domain'\n"));
+    fprintf(fp, _("      also use unique-prefix matching (e.g. 'en ex', 'us pas', 'i sh', 'dom cur').\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  ISSUE_ID\n");
-    fprintf(fp, "      16-character hex identifier of an issue. May be given as a\n");
-    fprintf(fp, "      unique prefix of 2 or more characters. The resolver reports\n");
-    fprintf(fp, "      'too short', 'ambiguous issue id' or 'issue not found'.\n");
+    fprintf(fp, _("  ISSUE_ID\n"));
+    fprintf(fp, _("      16-character hex identifier of an issue. May be given as a\n"));
+    fprintf(fp, _("      unique prefix of 2 or more characters. The resolver reports\n"));
+    fprintf(fp, _("      'too short', 'ambiguous issue id' or 'issue not found'.\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  DOMAIN selection\n");
-    fprintf(fp, "      By default the domain is computed from the current working\n");
-    fprintf(fp, "      directory. You can force another domain with the environment\n");
-    fprintf(fp, "      variable WF_DOMAIN (full id or unique short prefix).\n");
-    fprintf(fp, "      See also 'wf domain ls' and 'wf domain current'.\n");
+    fprintf(fp, _("  DOMAIN selection\n"));
+    fprintf(fp, _("      By default the domain is computed from the current working\n"));
+    fprintf(fp, _("      directory. You can force another domain with the environment\n"));
+    fprintf(fp, _("      variable WF_DOMAIN (full id or unique short prefix).\n"));
+    fprintf(fp, _("      See also 'wf domain ls' and 'wf domain current'.\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  Review flow\n");
-    fprintf(fp, "      Assistants may attach a requested condition before review.\n");
-    fprintf(fp, "      Users may approve/reject/hold using that condition as-is,\n");
-    fprintf(fp, "      supply an override condition, partially approve, invalidate\n");
-    fprintf(fp, "      only the requested condition, or invalidate the whole issue.\n");
+    fprintf(fp, _("  Review flow\n"));
+    fprintf(fp, _("      Assistants may attach a requested condition before review.\n"));
+    fprintf(fp, _("      Users may approve/reject/hold using that condition as-is,\n"));
+    fprintf(fp, _("      supply an override condition, partially approve, invalidate\n"));
+    fprintf(fp, _("      only the requested condition, or invalidate the whole issue.\n"));
 }
 
 static void wf_print_usecases(FILE *fp)
 {
-    fprintf(fp, "Common usecases:\n");
+    fprintf(fp, _("Common usecases:\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  The reserved 'assistant' account auto-registers on first use:\n");
+    fprintf(fp, _("  The reserved 'assistant' account auto-registers on first use:\n"));
     fprintf(fp, "      wf exec assistant -- wf issue create \"fix the thing\"\n");
     fprintf(fp, "\n");
-    fprintf(fp, "  Create a named Assistant explicitly:\n");
+    fprintf(fp, _("  Create a named Assistant explicitly:\n"));
     fprintf(fp, "      wf user create bot Assistant\n");
     fprintf(fp, "      wf exec bot -- wf issue create \"fix the thing\"\n");
     fprintf(fp, "\n");
-    fprintf(fp, "  Start an interactive User shell:\n");
+    fprintf(fp, _("  Start an interactive User shell:\n"));
     fprintf(fp, "      wf user passwd user User\n");
     fprintf(fp, "      wf exec\n");
     fprintf(fp, "      wf issue list\n");
     fprintf(fp, "      wf issue show <id>\n");
     fprintf(fp, "      wf issue approve <id> \"looks good\"\n");
-    fprintf(fp, "      # wf exec also exports WF_EXEC_USER and WF_EXEC_DOMAIN\n");
+    fprintf(fp, _("      # wf exec also exports WF_EXEC_USER and WF_EXEC_DOMAIN\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  Export environment into the current shell:\n");
+    fprintf(fp, _("  Export environment into the current shell:\n"));
     fprintf(fp, "      eval \"$(wf env export assistant)\"\n");
     fprintf(fp, "      eval \"$(wf env clear)\"\n");
     fprintf(fp, "\n");
-    fprintf(fp, "  Show the current authenticated wf session user:\n");
+    fprintf(fp, _("  Show the current authenticated wf session user:\n"));
     fprintf(fp, "      wf whoami\n");
     fprintf(fp, "\n");
-    fprintf(fp, "  As an Assistant, request a condition before review:\n");
+    fprintf(fp, _("  As an Assistant, request a condition before review:\n"));
     fprintf(fp, "      wf issue request-condition <id> \"only after canary passes\"\n");
     fprintf(fp, "\n");
-    fprintf(fp, "  As a User, override the requested condition during review:\n");
+    fprintf(fp, _("  As a User, override the requested condition during review:\n"));
     fprintf(fp, "      wf issue approve-with <id> \"only after on-call signs off\" \"acceptable with override\"\n");
     fprintf(fp, "\n");
-    fprintf(fp, "  Work with a different directory's domain without cd:\n");
+    fprintf(fp, _("  Work with a different directory's domain without cd:\n"));
     fprintf(fp, "      WF_DOMAIN=8bae3411 wf issue list\n");
     fprintf(fp, "\n");
-    fprintf(fp, "  See all known domains:\n");
+    fprintf(fp, _("  See all known domains:\n"));
     fprintf(fp, "      wf domain ls\n");
 }
 
@@ -293,7 +292,7 @@ static int cmd_exec(const struct wf_domain *domain, int argc, char **argv)
             command_argv = argv;
         }
         if (command_argc >= 1 && !wf_streq(command_argv[0], "--")) {
-            fprintf(stderr, "child commands require '--' before COMMAND\n");
+            fprintf(stderr, _("child commands require '--' before COMMAND\n"));
             wf_print_exec_usage(stderr);
             return 1;
         }
@@ -320,25 +319,25 @@ static int cmd_env(const struct wf_domain *domain, int argc, char **argv)
         enum wf_match_result mres = wf_match_prefix(envsubs, sub, &matched);
 
         if (mres == WF_MATCH_AMBIGUOUS) {
-            fprintf(stderr, "ambiguous env command: %s. See 'wf help semantics'.\n", sub);
+            fprintf(stderr, _("ambiguous env command: %s. See 'wf help semantics'.\n"), sub);
             wf_print_env_usage(stderr);
             return 1;
         }
         if (mres != WF_MATCH_EXACT && mres != WF_MATCH_PREFIX) {
-            fprintf(stderr, "unknown env command: %s. See 'wf help semantics'.\n", sub);
+            fprintf(stderr, _("unknown env command: %s. See 'wf help semantics'.\n"), sub);
             return 1;
         }
         if (strcmp(matched, "export") == 0) {
             const char *username = (argc >= 2 ? argv[1] : "user");
 
             if (argc > 2) {
-                fprintf(stderr, "usage: wf env export [USERNAME]\n");
+                fprintf(stderr, _("usage: wf env export [USERNAME]\n"));
                 return 1;
             }
             return wf_auth_env_export(domain, username);
         }
         if (argc != 1) {
-            fprintf(stderr, "usage: wf env clear\n");
+            fprintf(stderr, _("usage: wf env clear\n"));
             return 1;
         }
         return wf_auth_env_clear(domain);
@@ -427,12 +426,12 @@ static int cmd_user(const struct wf_domain *domain, int argc, char **argv)
         enum wf_match_result mres = wf_match_prefix(usersubs, sub, &matched);
 
         if (mres == WF_MATCH_AMBIGUOUS) {
-            fprintf(stderr, "ambiguous user command: %s. See 'wf help semantics'.\n", sub);
+            fprintf(stderr, _("ambiguous user command: %s. See 'wf help semantics'.\n"), sub);
             wf_user_usage(stderr);
             return 1;
         }
         if (mres != WF_MATCH_EXACT && mres != WF_MATCH_PREFIX) {
-            fprintf(stderr, "unknown user command: %s. See 'wf help concepts'.\n", sub);
+            fprintf(stderr, _("unknown user command: %s. See 'wf help concepts'.\n"), sub);
             return 1;
         }
 
@@ -461,7 +460,7 @@ static int cmd_user(const struct wf_domain *domain, int argc, char **argv)
             const char *username = (argc >= 2 ? argv[1] : NULL);
             const char *role = (argc >= 3 ? argv[2] : "User");
             if (!username) {
-                fprintf(stderr, "usage: wf user create USERNAME [User|Assistant]\n");
+                fprintf(stderr, _("usage: wf user create USERNAME [User|Assistant]\n"));
                 return 1;
             }
             return wf_auth_create(domain, username, role);
@@ -469,7 +468,7 @@ static int cmd_user(const struct wf_domain *domain, int argc, char **argv)
             const char *username = (argc >= 2 ? argv[1] : NULL);
             const char *role = (argc >= 3 ? argv[2] : NULL);
             if (!username) {
-                fprintf(stderr, "usage: wf user passwd USERNAME [User|Assistant]\n");
+                fprintf(stderr, _("usage: wf user passwd USERNAME [User|Assistant]\n"));
                 return 1;
             }
             return wf_auth_passwd(domain, username, role ? role : "User");
@@ -501,12 +500,12 @@ static int cmd_domain(const struct wf_domain *domain, int argc, char **argv)
         enum wf_match_result mres = wf_match_prefix(domsubs, sub, &matched);
 
         if (mres == WF_MATCH_AMBIGUOUS) {
-            fprintf(stderr, "ambiguous domain command: %s. See 'wf help semantics'.\n", sub);
+            fprintf(stderr, _("ambiguous domain command: %s. See 'wf help semantics'.\n"), sub);
             wf_domain_usage(stderr);
             return 1;
         }
         if (mres != WF_MATCH_EXACT && mres != WF_MATCH_PREFIX) {
-            fprintf(stderr, "unknown domain command: %s. See 'wf help concepts'.\n", sub);
+            fprintf(stderr, _("unknown domain command: %s. See 'wf help concepts'.\n"), sub);
             return 1;
         }
 
@@ -555,9 +554,11 @@ int main(int argc, char **argv)
     enum wf_match_result res;
     const char *forced_domain = getenv("WF_DOMAIN");
 
+    wf_i18n_init();
+
     if (argc >= 2 && wf_streq(argv[1], "--version")) {
         if (argc != 2) {
-            fprintf(stderr, "usage: wf --version\n");
+            fprintf(stderr, _("usage: wf --version\n"));
             return 1;
         }
         wf_print_version(stdout);
@@ -591,12 +592,12 @@ int main(int argc, char **argv)
     }
 
     if (res == WF_MATCH_AMBIGUOUS) {
-        fprintf(stderr, "ambiguous command: %s. See 'wf help' or 'wf help concepts'.\n", argv[1]);
+        fprintf(stderr, _("ambiguous command: %s. See 'wf help' or 'wf help concepts'.\n"), argv[1]);
         wf_help(stderr, NULL);
         return 1;
     }
 
-    fprintf(stderr, "unknown command: %s. See 'wf help' or 'wf help concepts'.\n", argv[1]);
+    fprintf(stderr, _("unknown command: %s. See 'wf help' or 'wf help concepts'.\n"), argv[1]);
     wf_help(stderr, NULL);
     return 1;
 }

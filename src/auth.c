@@ -2,6 +2,7 @@
 
 #include "auth.h"
 
+#include "i18n.h"
 #include "storage.h"
 #include "util.h"
 
@@ -34,7 +35,7 @@ int wf_role_parse(const char *value, enum wf_role *role)
         *role = WF_ROLE_ASSISTANT;
         return 0;
     }
-    fprintf(stderr, "invalid role: %s\n", value);
+    fprintf(stderr, _("invalid role: %s\n"), value);
     return 1;
 }
 
@@ -137,11 +138,11 @@ static int wf_auth_user_exists(const struct wf_domain *domain, const char *usern
 int wf_auth_create(const struct wf_domain *domain, const char *username, const char *role_name)
 {
     if (!wf_valid_username(username)) {
-        fprintf(stderr, "invalid username\n");
+        fprintf(stderr, _("invalid username\n"));
         return 1;
     }
     if (wf_auth_user_exists(domain, username)) {
-        fprintf(stderr, "user already exists: %s\n", username);
+        fprintf(stderr, _("user already exists: %s\n"), username);
         return 1;
     }
     return wf_auth_passwd(domain, username, role_name);
@@ -155,14 +156,14 @@ int wf_auth_passwd(const struct wf_domain *domain, const char *username, const c
     char hash[65] = "";
 
     if (!wf_valid_username(username)) {
-        fprintf(stderr, "invalid username\n");
+        fprintf(stderr, _("invalid username\n"));
         return 1;
     }
     if (wf_role_parse(role_name, &role) != 0) {
         return 1;
     }
     if (role == WF_ROLE_USER) {
-        if (wf_read_password_twice("New password: ", "Retype password: ", &password) != 0) {
+        if (wf_read_password_twice(_("New password: "), _("Retype password: "), &password) != 0) {
             return 1;
         }
         if (wf_random_hex(salt, 32) != 0) {
@@ -177,9 +178,9 @@ int wf_auth_passwd(const struct wf_domain *domain, const char *username, const c
         return 1;
     }
     if (role == WF_ROLE_ASSISTANT) {
-        printf("assistant registered for %s\n", username);
+        printf(_("assistant registered for %s\n"), username);
     } else {
-        printf("password updated for %s (%s)\n", username, wf_role_name(role));
+        printf(_("password updated for %s (%s)\n"), username, wf_role_name(role));
     }
     return 0;
 }
@@ -195,7 +196,7 @@ static int wf_auth_open_session(const struct wf_domain *domain, const char *user
     if (wf_read_user_record(domain, username, &record) != 0) {
         if (strcmp(username, "assistant") != 0) {
             fprintf(stderr,
-                "unknown user: %s. Create a User with 'wf user passwd %s User' or an Assistant with 'wf user create %s Assistant'.\n",
+                _("unknown user: %s. Create a User with 'wf user passwd %s User' or an Assistant with 'wf user create %s Assistant'.\n"),
                 username,
                 username,
                 username);
@@ -217,7 +218,7 @@ static int wf_auth_open_session(const struct wf_domain *domain, const char *user
         wf_password_hash(record.salt, password, hash);
         free(password);
         if (strcmp(hash, record.hash) != 0) {
-            fprintf(stderr, "authentication failed\n");
+            fprintf(stderr, _("authentication failed\n"));
             return 1;
         }
     }
@@ -337,7 +338,7 @@ int wf_auth_exec(const struct wf_domain *domain, const char *username, int argc,
             if (wf_auth_prepare_exec_shell_env(domain, username) != 0) {
                 _exit(1);
             }
-            fprintf(stderr, "wf exec shell: user=%s domain=%s\n", username, domain->id);
+            fprintf(stderr, _("wf exec shell: user=%s domain=%s\n"), username, domain->id);
             execl(shell, shell, "-i", (char *)NULL);
             perror(shell);
             _exit(127);
@@ -353,11 +354,11 @@ int wf_auth_exec(const struct wf_domain *domain, const char *username, int argc,
 
     if (wait_rc >= 0 && argc == 0) {
         if (WIFEXITED(status)) {
-            fprintf(stderr, "wf exec shell returned: user=%s domain=%s exit=%d\n", username, domain->id, WEXITSTATUS(status));
+            fprintf(stderr, _("wf exec shell returned: user=%s domain=%s exit=%d\n"), username, domain->id, WEXITSTATUS(status));
         } else if (WIFSIGNALED(status)) {
-            fprintf(stderr, "wf exec shell returned: user=%s domain=%s signal=%d\n", username, domain->id, WTERMSIG(status));
+            fprintf(stderr, _("wf exec shell returned: user=%s domain=%s signal=%d\n"), username, domain->id, WTERMSIG(status));
         } else {
-            fprintf(stderr, "wf exec shell returned: user=%s domain=%s\n", username, domain->id);
+            fprintf(stderr, _("wf exec shell returned: user=%s domain=%s\n"), username, domain->id);
         }
     }
 
@@ -385,12 +386,12 @@ int wf_auth_current_user(const struct wf_domain *domain, struct wf_user *user)
     char line[1024];
 
     if (token == NULL || token[0] == '\0') {
-        fprintf(stderr, "not logged in: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env export USERNAME)\"'\n");
+        fprintf(stderr, _("not logged in: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env export USERNAME)\"'\n"));
         return 1;
     }
     file = fopen(domain->sessions, "r");
     if (file == NULL) {
-        fprintf(stderr, "not logged in: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env export USERNAME)\"'\n");
+        fprintf(stderr, _("not logged in: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env export USERNAME)\"'\n"));
         return 1;
     }
     while (fgets(line, sizeof(line), file) != NULL) {
@@ -408,6 +409,6 @@ int wf_auth_current_user(const struct wf_domain *domain, struct wf_user *user)
         }
     }
     fclose(file);
-    fprintf(stderr, "invalid WF_TOKEN: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env export USERNAME)\"'\n");
+    fprintf(stderr, _("invalid WF_TOKEN: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env export USERNAME)\"'\n"));
     return 1;
 }

@@ -1,0 +1,1274 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the wf package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: wf 0.2.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-11 14:37+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/main.c:102
+#, c-format
+msgid ""
+"\n"
+"See 'wf help concepts' (actor / role section).\n"
+msgstr ""
+
+#: src/main.c:114
+#, c-format
+msgid ""
+"\n"
+"See 'wf help concepts' (domain section) and 'wf help semantics'.\n"
+msgstr ""
+
+#: src/main.c:186
+#, c-format
+msgid "                 'wf exec' or 'wf env export'.\n"
+msgstr ""
+
+#: src/main.c:188
+#, c-format
+msgid "                 (approve/reject/hold/resume), invalidate a\n"
+msgstr ""
+
+#: src/main.c:187
+#, c-format
+msgid "                 Can read issues, comment, review issues\n"
+msgstr ""
+
+#: src/main.c:193
+#, c-format
+msgid "                 comment.\n"
+msgstr ""
+
+#: src/main.c:192
+#, c-format
+msgid "                 condition, clear that condition, and\n"
+msgstr ""
+
+#: src/main.c:185
+#, c-format
+msgid "                 creating an execution environment with\n"
+msgstr ""
+
+#: src/main.c:189
+#, c-format
+msgid "                 requested condition, or invalidate an issue.\n"
+msgstr ""
+
+#: src/main.c:191
+#, c-format
+msgid "                 update/delete its own issues, request a\n"
+msgstr ""
+
+#: src/main.c:88
+#, c-format
+msgid "       wf --version\n"
+msgstr ""
+
+#: src/main.c:63
+#, c-format
+msgid "       wf exec -- COMMAND [ARGS...]\n"
+msgstr ""
+
+#: src/main.c:253
+#, c-format
+msgid "      # wf exec also exports WF_EXEC_USER and WF_EXEC_DOMAIN\n"
+msgstr ""
+
+#: src/main.c:178
+#, c-format
+msgid "      $XDG_DATA_HOME/wf/domains/<64hex-id>/. Different directories\n"
+msgstr ""
+
+#: src/main.c:181
+#, c-format
+msgid "      'WF_DOMAIN=shortid ...' to operate on a non-current domain.\n"
+msgstr ""
+
+#: src/main.c:221
+#, c-format
+msgid "      'too short', 'ambiguous issue id' or 'issue not found'.\n"
+msgstr ""
+
+#: src/main.c:214
+#, c-format
+msgid "      (e.g. 'ex' for 'exec', 'i' for 'issue').\n"
+msgstr ""
+
+#: src/main.c:177
+#, c-format
+msgid "      (users, sessions, issues) for that directory lives under\n"
+msgstr ""
+
+#: src/main.c:219
+#, c-format
+msgid "      16-character hex identifier of an issue. May be given as a\n"
+msgstr ""
+
+#: src/main.c:205
+#, c-format
+msgid "      Ambiguous input produces a clear error and the relevant usage.\n"
+msgstr ""
+
+#: src/main.c:175
+#, c-format
+msgid "      An isolation boundary. The domain is derived from the current\n"
+msgstr ""
+
+#: src/issue.c:1132
+#, c-format
+msgid "      Approve only part of the request under a reviewer condition.\n"
+msgstr ""
+
+#: src/issue.c:1130
+#, c-format
+msgid "      Approve using a reviewer-supplied condition instead.\n"
+msgstr ""
+
+#: src/issue.c:1128
+#, c-format
+msgid "      Approve using the requested condition if one is active.\n"
+msgstr ""
+
+#: src/main.c:190
+#, c-format
+msgid "      Assistant- AI / automation. No password. Can create issues and\n"
+msgstr ""
+
+#: src/main.c:230
+#, c-format
+msgid "      Assistants may attach a requested condition before review.\n"
+msgstr ""
+
+#: src/main.c:202
+#, c-format
+msgid "      Both top-level COMMANDs and 'issue' subcommands support\n"
+msgstr ""
+
+#: src/main.c:224
+#, c-format
+msgid "      By default the domain is computed from the current working\n"
+msgstr ""
+
+#: src/main.c:215
+#, c-format
+msgid "      Entity subcommands under 'env', 'user', 'issue', and 'domain'\n"
+msgstr ""
+
+#: src/issue.c:1144
+#, c-format
+msgid ""
+"      Invalidate only the requested condition and keep the issue itself "
+"active.\n"
+msgstr ""
+
+#: src/issue.c:1146
+#, c-format
+msgid "      Mark the whole issue invalid.\n"
+msgstr ""
+
+#: src/issue.c:1140
+#, c-format
+msgid ""
+"      Put the issue on hold using a reviewer-supplied condition instead.\n"
+msgstr ""
+
+#: src/issue.c:1138
+#, c-format
+msgid ""
+"      Put the issue on hold using the requested condition if one is active.\n"
+msgstr ""
+
+#: src/issue.c:1136
+#, c-format
+msgid "      Reject using a reviewer-supplied condition instead.\n"
+msgstr ""
+
+#: src/issue.c:1134
+#, c-format
+msgid "      Reject using the requested condition if one is active.\n"
+msgstr ""
+
+#: src/issue.c:1125
+#, c-format
+msgid "      Remove the requested condition while the issue is still open.\n"
+msgstr ""
+
+#: src/issue.c:1142
+#, c-format
+msgid "      Return a held issue to open state.\n"
+msgstr ""
+
+#: src/main.c:227
+#, c-format
+msgid "      See also 'wf domain ls' and 'wf domain current'.\n"
+msgstr ""
+
+#: src/issue.c:1123
+#, c-format
+msgid ""
+"      Set or replace the requested condition while the issue is still open.\n"
+msgstr ""
+
+#: src/main.c:196
+#, c-format
+msgid "      The central work item. Has a 16-hex ID, content, creator,\n"
+msgstr ""
+
+#: src/main.c:213
+#, c-format
+msgid "      Top-level command. May be abbreviated to a unique prefix\n"
+msgstr ""
+
+#: src/main.c:184
+#, c-format
+msgid "      User     - human approver. Requires TTY password when\n"
+msgstr ""
+
+#: src/main.c:231
+#, c-format
+msgid "      Users may approve/reject/hold using that condition as-is,\n"
+msgstr ""
+
+#: src/main.c:216
+#, c-format
+msgid ""
+"      also use unique-prefix matching (e.g. 'en ex', 'us pas', 'i sh', 'dom "
+"cur').\n"
+msgstr ""
+
+#: src/main.c:198
+#, c-format
+msgid "      decision details, approver and comments. Assistants create\n"
+msgstr ""
+
+#: src/main.c:225
+#, c-format
+msgid "      directory. You can force another domain with the environment\n"
+msgstr ""
+
+#: src/main.c:180
+#, c-format
+msgid "      hash. Use 'wf domain ls' to see registered domains and\n"
+msgstr ""
+
+#: src/main.c:197
+#, c-format
+msgid "      issue state, optional requested condition, recorded review\n"
+msgstr ""
+
+#: src/main.c:199
+#, c-format
+msgid "      issues and manage requested conditions; Users review them.\n"
+msgstr ""
+
+#: src/main.c:179
+#, c-format
+msgid "      normally get different domains unless they share the same path\n"
+msgstr ""
+
+#: src/main.c:233
+#, c-format
+msgid "      only the requested condition, or invalidate the whole issue.\n"
+msgstr ""
+
+#: src/main.c:232
+#, c-format
+msgid "      supply an override condition, partially approve, invalidate\n"
+msgstr ""
+
+#: src/main.c:203
+#, c-format
+msgid "      unique prefix matching (exact match wins). ISSUE_IDs support\n"
+msgstr ""
+
+#: src/main.c:220
+#, c-format
+msgid "      unique prefix of 2 or more characters. The resolver reports\n"
+msgstr ""
+
+#: src/main.c:204
+#, c-format
+msgid "      unique prefixes of 2 or more characters.\n"
+msgstr ""
+
+#: src/main.c:226
+#, c-format
+msgid "      variable WF_DOMAIN (full id or unique short prefix).\n"
+msgstr ""
+
+#: src/main.c:176
+#, c-format
+msgid "      working directory (SHA-256 of \"wf:<realpath>\"). All data\n"
+msgstr ""
+
+#: src/issue.c:1111 src/main.c:94
+#, c-format
+msgid "  (COMMAND may be abbreviated to a unique prefix.)\n"
+msgstr ""
+
+#: src/main.c:108
+#, c-format
+msgid ""
+"  (COMMAND may be abbreviated to a unique prefix; aliases: ls, current.)\n"
+msgstr ""
+
+#: src/main.c:68
+#, c-format
+msgid "  - exports WF_EXEC_USER and WF_EXEC_DOMAIN (domain id)\n"
+msgstr ""
+
+#: src/main.c:67
+#, c-format
+msgid "  - prints a return banner to stderr after the shell exits\n"
+msgstr ""
+
+#: src/main.c:66
+#, c-format
+msgid "  - prints a start banner to stderr when the shell begins\n"
+msgstr ""
+
+#: src/main.c:265
+#, c-format
+msgid "  As a User, override the requested condition during review:\n"
+msgstr ""
+
+#: src/main.c:262
+#, c-format
+msgid "  As an Assistant, request a condition before review:\n"
+msgstr ""
+
+#: src/main.c:212
+#, c-format
+msgid "  COMMAND\n"
+msgstr ""
+
+#: src/main.c:243
+#, c-format
+msgid "  Create a named Assistant explicitly:\n"
+msgstr ""
+
+#: src/main.c:223
+#, c-format
+msgid "  DOMAIN selection\n"
+msgstr ""
+
+#: src/issue.c:1114
+#, c-format
+msgid "  Entity: issue (standard list + CRUD + review actions)\n"
+msgstr ""
+
+#: src/main.c:95
+#, c-format
+msgid "  Entity: user (list + create + password management)\n"
+msgstr ""
+
+#: src/issue.c:1153
+#, c-format
+msgid ""
+"  Example: wf issue approve-with 0123abcd \"only after canary passes\" "
+"\"looks acceptable\"\n"
+msgstr ""
+
+#: src/main.c:255
+#, c-format
+msgid "  Export environment into the current shell:\n"
+msgstr ""
+
+#: src/main.c:218
+#, c-format
+msgid "  ISSUE_ID\n"
+msgstr ""
+
+#: src/issue.c:1112
+#, c-format
+msgid ""
+"  ISSUE_ID may be abbreviated to a unique prefix of 2 or more characters.\n"
+msgstr ""
+
+#: src/main.c:81
+#, c-format
+msgid "  Print the current authenticated wf session username.\n"
+msgstr ""
+
+#: src/issue.c:1152
+#, c-format
+msgid "  Quote CONDITION, COMMENT, and REASON when they contain spaces.\n"
+msgstr ""
+
+#: src/main.c:82
+#, c-format
+msgid "  Requires an active session from 'wf exec' or 'wf env export'.\n"
+msgstr ""
+
+#: src/main.c:229
+#, c-format
+msgid "  Review flow\n"
+msgstr ""
+
+#: src/main.c:271
+#, c-format
+msgid "  See all known domains:\n"
+msgstr ""
+
+#: src/main.c:259
+#, c-format
+msgid "  Show the current authenticated wf session user:\n"
+msgstr ""
+
+#: src/main.c:247
+#, c-format
+msgid "  Start an interactive User shell:\n"
+msgstr ""
+
+#: src/main.c:240
+#, c-format
+msgid "  The reserved 'assistant' account auto-registers on first use:\n"
+msgstr ""
+
+#: src/main.c:268
+#, c-format
+msgid "  Work with a different directory's domain without cd:\n"
+msgstr ""
+
+#: src/main.c:201
+#, c-format
+msgid "  abbreviation:\n"
+msgstr ""
+
+#: src/main.c:183
+#, c-format
+msgid "  actor / role:\n"
+msgstr ""
+
+#: src/main.c:100
+#, c-format
+msgid "  create: new user only; fails if USERNAME already exists.\n"
+msgstr ""
+
+#: src/main.c:25
+#, c-format
+msgid ""
+"  domain    isolation boundary and data root (list/create/show/delete)\n"
+msgstr ""
+
+#: src/main.c:174
+#, c-format
+msgid "  domain:\n"
+msgstr ""
+
+#: src/main.c:24
+#, c-format
+msgid "  issue     the primary work item (CRUD + workflow actions)\n"
+msgstr ""
+
+#: src/main.c:195
+#, c-format
+msgid "  issue:\n"
+msgstr ""
+
+#: src/main.c:101
+#, c-format
+msgid "  passwd: create or update credentials/role for USERNAME.\n"
+msgstr ""
+
+#: src/main.c:26
+#, c-format
+msgid "  user      human or assistant identity\n"
+msgstr ""
+
+#: src/main.c:40
+#, c-format
+msgid "  wf --version\n"
+msgstr ""
+
+#: src/main.c:39
+#, c-format
+msgid "  wf COMMAND --help\n"
+msgstr ""
+
+#: src/main.c:35
+#, c-format
+msgid "  wf domain COMMAND ...\n"
+msgstr ""
+
+#: src/main.c:110
+#, c-format
+msgid "  wf domain create\n"
+msgstr ""
+
+#: src/main.c:112
+#, c-format
+msgid "  wf domain delete <id|short>\n"
+msgstr ""
+
+#: src/main.c:109
+#, c-format
+msgid "  wf domain list\n"
+msgstr ""
+
+#: src/main.c:111
+#, c-format
+msgid "  wf domain show [id|short]\n"
+msgstr ""
+
+#: src/main.c:113
+#, c-format
+msgid "  wf domain status\n"
+msgstr ""
+
+#: src/main.c:30
+#, c-format
+msgid "  wf env COMMAND\n"
+msgstr ""
+
+#: src/main.c:75
+#, c-format
+msgid "  wf env clear\n"
+msgstr ""
+
+#: src/main.c:74
+#, c-format
+msgid "  wf env export [USERNAME]\n"
+msgstr ""
+
+#: src/main.c:29
+#, c-format
+msgid "  wf exec [USERNAME] [-- COMMAND ...]\n"
+msgstr ""
+
+#: src/main.c:38
+#, c-format
+msgid "  wf help [COMMAND|TOPIC]\n"
+msgstr ""
+
+#: src/main.c:34
+#, c-format
+msgid "  wf issue COMMAND ...\n"
+msgstr ""
+
+#: src/issue.c:1127
+#, c-format
+msgid "  wf issue approve ISSUE_ID COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1131
+#, c-format
+msgid "  wf issue approve-partial ISSUE_ID CONDITION COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1129
+#, c-format
+msgid "  wf issue approve-with ISSUE_ID CONDITION COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1124
+#, c-format
+msgid "  wf issue clear-condition ISSUE_ID REASON\n"
+msgstr ""
+
+#: src/issue.c:1148
+#, c-format
+msgid "  wf issue comment ISSUE_ID COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1149
+#, c-format
+msgid "  wf issue comments ISSUE_ID\n"
+msgstr ""
+
+#: src/issue.c:1117
+#, c-format
+msgid "  wf issue create CONTENTS\n"
+msgstr ""
+
+#: src/issue.c:1120
+#, c-format
+msgid "  wf issue delete ISSUE_ID\n"
+msgstr ""
+
+#: src/issue.c:1137
+#, c-format
+msgid "  wf issue hold ISSUE_ID COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1139
+#, c-format
+msgid "  wf issue hold-with ISSUE_ID CONDITION COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1145
+#, c-format
+msgid "  wf issue invalidate ISSUE_ID REASON\n"
+msgstr ""
+
+#: src/issue.c:1143
+#, c-format
+msgid "  wf issue invalidate-condition ISSUE_ID REASON\n"
+msgstr ""
+
+#: src/issue.c:1116
+#, c-format
+msgid "  wf issue list\n"
+msgstr ""
+
+#: src/issue.c:1133
+#, c-format
+msgid "  wf issue reject ISSUE_ID COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1135
+#, c-format
+msgid "  wf issue reject-with ISSUE_ID CONDITION COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1122
+#, c-format
+msgid "  wf issue request-condition ISSUE_ID CONDITION\n"
+msgstr ""
+
+#: src/issue.c:1141
+#, c-format
+msgid "  wf issue resume ISSUE_ID COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1150
+#, c-format
+msgid "  wf issue search KEYWORD\n"
+msgstr ""
+
+#: src/issue.c:1118
+#, c-format
+msgid "  wf issue show ISSUE_ID\n"
+msgstr ""
+
+#: src/issue.c:1119
+#, c-format
+msgid "  wf issue update ISSUE_ID CONTENTS\n"
+msgstr ""
+
+#: src/main.c:33
+#, c-format
+msgid "  wf user COMMAND ...\n"
+msgstr ""
+
+#: src/main.c:97
+#, c-format
+msgid "  wf user create USERNAME [User|Assistant]\n"
+msgstr ""
+
+#: src/main.c:96
+#, c-format
+msgid "  wf user list\n"
+msgstr ""
+
+#: src/main.c:98
+#, c-format
+msgid "  wf user passwd USERNAME [User|Assistant]\n"
+msgstr ""
+
+#: src/main.c:32
+#, c-format
+msgid "  wf version\n"
+msgstr ""
+
+#: src/main.c:31
+#, c-format
+msgid "  wf whoami          # current wf session user\n"
+msgstr ""
+
+#: src/domain.c:148
+#, c-format
+msgid "%s  (no path recorded)\n"
+msgstr ""
+
+#: src/domain.c:240
+msgid "(unknown)"
+msgstr ""
+
+#: src/main.c:28
+#, c-format
+msgid "Commands:\n"
+msgstr ""
+
+#: src/main.c:238
+#, c-format
+msgid "Common usecases:\n"
+msgstr ""
+
+#: src/main.c:172
+#, c-format
+msgid "Concepts:\n"
+msgstr ""
+
+#: src/main.c:23
+#, c-format
+msgid "Entities:\n"
+msgstr ""
+
+#: src/main.c:37
+#, c-format
+msgid "Help:\n"
+msgstr ""
+
+#: src/main.c:65
+#, c-format
+msgid "Interactive shell mode (no COMMAND):\n"
+msgstr ""
+
+#: src/auth.c:166
+msgid "New password: "
+msgstr ""
+
+#: src/main.c:167
+#, c-format
+msgid ""
+"No detailed help for topic '%s'. Try 'wf help concepts' or 'wf help "
+"semantics'.\n"
+msgstr ""
+
+#: src/auth.c:166
+msgid "Retype password: "
+msgstr ""
+
+#: src/issue.c:1155
+#, c-format
+msgid ""
+"See 'wf help concepts' for the meaning of roles and ISSUE_ID abbreviation.\n"
+msgstr ""
+
+#: src/domain.c:262
+#, c-format
+msgid "See 'wf help semantics' for how domain IDs and short prefixes work.\n"
+msgstr ""
+
+#: src/main.c:210
+#, c-format
+msgid "Semantics:\n"
+msgstr ""
+
+#: src/main.c:42
+#, c-format
+msgid "Topics: concepts, semantics, usecases\n"
+msgstr ""
+
+#: src/main.c:595
+#, c-format
+msgid "ambiguous command: %s. See 'wf help' or 'wf help concepts'.\n"
+msgstr ""
+
+#: src/main.c:503
+#, c-format
+msgid "ambiguous domain command: %s. See 'wf help semantics'.\n"
+msgstr ""
+
+#: src/domain.c:301
+#, c-format
+msgid "ambiguous domain id: %s. See 'wf help semantics'.\n"
+msgstr ""
+
+#: src/main.c:322
+#, c-format
+msgid "ambiguous env command: %s. See 'wf help semantics'.\n"
+msgstr ""
+
+#: src/issue.c:1415
+#, c-format
+msgid "ambiguous issue command: %s. See 'wf help semantics'.\n"
+msgstr ""
+
+#: src/issue.c:220
+#, c-format
+msgid "ambiguous issue id: %s. See 'wf help semantics'.\n"
+msgstr ""
+
+#: src/main.c:429
+#, c-format
+msgid "ambiguous user command: %s. See 'wf help semantics'.\n"
+msgstr ""
+
+#: src/auth.c:181
+#, c-format
+msgid "assistant registered for %s\n"
+msgstr ""
+
+#: src/auth.c:221
+#, c-format
+msgid "authentication failed\n"
+msgstr ""
+
+#: src/issue.c:795
+#, c-format
+msgid "cannot change review decision unless issue is open\n"
+msgstr ""
+
+#: src/issue.c:726
+#, c-format
+msgid ""
+"cannot clear requested condition after the issue reached a terminal state\n"
+msgstr ""
+
+#: src/issue.c:731
+#, c-format
+msgid "cannot clear requested condition unless issue is open\n"
+msgstr ""
+
+#: src/issue.c:631
+#, c-format
+msgid "cannot delete issue after it has reached a terminal state\n"
+msgstr ""
+
+#: src/issue.c:958
+#, c-format
+msgid "cannot invalidate issue after it has reached a terminal state\n"
+msgstr ""
+
+#: src/issue.c:915
+#, c-format
+msgid "cannot invalidate requested condition after a review decision\n"
+msgstr ""
+
+#: src/issue.c:900
+#, c-format
+msgid ""
+"cannot invalidate requested condition after the issue reached a terminal "
+"state\n"
+msgstr ""
+
+#: src/issue.c:849
+#, c-format
+msgid "cannot resume issue unless it is on hold\n"
+msgstr ""
+
+#: src/issue.c:790
+#, c-format
+msgid "cannot review issue after it has reached a terminal state\n"
+msgstr ""
+
+#: src/issue.c:593
+#, c-format
+msgid "cannot update issue after it has reached a terminal state\n"
+msgstr ""
+
+#: src/issue.c:674
+#, c-format
+msgid ""
+"cannot update requested condition after the issue reached a terminal state\n"
+msgstr ""
+
+#: src/issue.c:679
+#, c-format
+msgid "cannot update requested condition unless issue is open\n"
+msgstr ""
+
+#: src/main.c:295
+#, c-format
+msgid "child commands require '--' before COMMAND\n"
+msgstr ""
+
+#: src/issue.c:125
+#, c-format
+msgid "corrupt decision basis: %s\n"
+msgstr ""
+
+#: src/issue.c:121
+#, c-format
+msgid "corrupt decision scope: %s\n"
+msgstr ""
+
+#: src/issue.c:117
+#, c-format
+msgid "corrupt decision type: %s\n"
+msgstr ""
+
+#: src/issue.c:109
+#, c-format
+msgid "corrupt issue state: %s\n"
+msgstr ""
+
+#: src/issue.c:255 src/issue.c:263
+#, c-format
+msgid "corrupt issue: %s\n"
+msgstr ""
+
+#: src/issue.c:113
+#, c-format
+msgid "corrupt requested condition state: %s\n"
+msgstr ""
+
+#: src/domain.c:333
+#, c-format
+msgid "deleted domain %s\n"
+msgstr ""
+
+#: src/domain.c:225
+#, c-format
+msgid "domain not found or ambiguous: %s\n"
+msgstr ""
+
+#: src/domain.c:304
+#, c-format
+msgid "domain not found: %s. See 'wf help concepts' (domain section).\n"
+msgstr ""
+
+#: src/util.c:178
+#, c-format
+msgid "failed to read password\n"
+msgstr ""
+
+#: src/util.c:107
+#, c-format
+msgid "failed to read random bytes\n"
+msgstr ""
+
+#: src/auth.c:412
+#, c-format
+msgid ""
+"invalid WF_TOKEN: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env "
+"export USERNAME)\"'\n"
+msgstr ""
+
+#: src/issue.c:136 src/issue.c:152 src/issue.c:180
+#, c-format
+msgid "invalid issue id\n"
+msgstr ""
+
+#: src/auth.c:38
+#, c-format
+msgid "invalid role: %s\n"
+msgstr ""
+
+#: src/auth.c:141 src/auth.c:159
+#, c-format
+msgid "invalid username\n"
+msgstr ""
+
+#: src/issue.c:184
+#, c-format
+msgid "issue id too short (minimum 2 characters). See 'wf help semantics'.\n"
+msgstr ""
+
+#: src/issue.c:249
+#, c-format
+msgid "issue not found: %s\n"
+msgstr ""
+
+#: src/issue.c:223
+#, c-format
+msgid "issue not found: %s. See 'wf help semantics'.\n"
+msgstr ""
+
+#: src/issue.c:175
+#, c-format
+msgid "missing issue id\n"
+msgstr ""
+
+#: src/util.c:47
+#, c-format
+msgid "missing text\n"
+msgstr ""
+
+#: src/domain.c:284
+#, c-format
+msgid "no domains to delete\n"
+msgstr ""
+
+#: src/issue.c:905
+#, c-format
+msgid "no requested condition to invalidate\n"
+msgstr ""
+
+#: src/auth.c:389 src/auth.c:394
+#, c-format
+msgid ""
+"not logged in: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env export "
+"USERNAME)\"'\n"
+msgstr ""
+
+#: src/issue.c:75 src/issue.c:94 src/issue.c:449 src/issue.c:490
+#: src/storage.c:80 src/storage.c:114 src/util.c:60 src/util.c:102
+#: src/util.c:191
+#, c-format
+msgid "out of memory\n"
+msgstr ""
+
+#: src/util.c:186
+#, c-format
+msgid "password cannot be empty\n"
+msgstr ""
+
+#: src/auth.c:183
+#, c-format
+msgid "password updated for %s (%s)\n"
+msgstr ""
+
+#: src/util.c:213
+#, c-format
+msgid "passwords do not match\n"
+msgstr ""
+
+#: src/domain.c:38 src/issue.c:141 src/issue.c:157 src/storage.c:21
+#, c-format
+msgid "path too long\n"
+msgstr ""
+
+#: src/issue.c:636
+#, c-format
+msgid "permission denied: Assistant can delete own issues only\n"
+msgstr ""
+
+#: src/issue.c:598 src/issue.c:684 src/issue.c:736
+#, c-format
+msgid "permission denied: Assistant can update own issues only\n"
+msgstr ""
+
+#: src/issue.c:465
+#, c-format
+msgid "permission denied: only Assistant can create issues\n"
+msgstr ""
+
+#: src/issue.c:663 src/issue.c:715
+#, c-format
+msgid "permission denied: only Assistant can update requested conditions\n"
+msgstr ""
+
+#: src/issue.c:779 src/issue.c:838 src/issue.c:889 src/issue.c:947
+#, c-format
+msgid "permission denied: only User can change approval status\n"
+msgstr ""
+
+#: src/domain.c:319
+#, c-format
+msgid ""
+"refusing to delete: %s does not look like a wf domain. See 'wf help "
+"concepts'.\n"
+msgstr ""
+
+#: src/issue.c:910
+#, c-format
+msgid "requested condition is already invalid\n"
+msgstr ""
+
+#: src/main.c:600
+#, c-format
+msgid "unknown command: %s. See 'wf help' or 'wf help concepts'.\n"
+msgstr ""
+
+#: src/main.c:508
+#, c-format
+msgid "unknown domain command: %s. See 'wf help concepts'.\n"
+msgstr ""
+
+#: src/main.c:327
+#, c-format
+msgid "unknown env command: %s. See 'wf help semantics'.\n"
+msgstr ""
+
+#: src/issue.c:1420
+#, c-format
+msgid ""
+"unknown issue command: %s. See 'wf help semantics' or 'wf help concepts'.\n"
+msgstr ""
+
+#: src/main.c:434
+#, c-format
+msgid "unknown user command: %s. See 'wf help concepts'.\n"
+msgstr ""
+
+#: src/auth.c:199
+#, c-format
+msgid ""
+"unknown user: %s. Create a User with 'wf user passwd %s User' or an "
+"Assistant with 'wf user create %s Assistant'.\n"
+msgstr ""
+
+#: src/main.c:21
+#, c-format
+msgid "usage: %s COMMAND [ARGS...]\n"
+msgstr ""
+
+#: src/main.c:561
+#, c-format
+msgid "usage: wf --version\n"
+msgstr ""
+
+#: src/main.c:107
+#, c-format
+msgid "usage: wf domain COMMAND\n"
+msgstr ""
+
+#: src/domain.c:261
+#, c-format
+msgid "usage: wf domain delete <id|short-id>\n"
+msgstr ""
+
+#: src/main.c:73
+#, c-format
+msgid "usage: wf env COMMAND\n"
+msgstr ""
+
+#: src/main.c:340
+#, c-format
+msgid "usage: wf env clear\n"
+msgstr ""
+
+#: src/main.c:334
+#, c-format
+msgid "usage: wf env export [USERNAME]\n"
+msgstr ""
+
+#: src/main.c:62
+#, c-format
+msgid "usage: wf exec [USERNAME] [-- COMMAND [ARGS...]]\n"
+msgstr ""
+
+#: src/issue.c:1110
+#, c-format
+msgid "usage: wf issue COMMAND [ARGS...]\n"
+msgstr ""
+
+#: src/issue.c:1211
+#, c-format
+msgid "usage: wf issue approve ISSUE_ID COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1245
+#, c-format
+msgid "usage: wf issue approve-partial ISSUE_ID CONDITION COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1228
+#, c-format
+msgid "usage: wf issue approve-with ISSUE_ID CONDITION COMMENT\n"
+msgstr ""
+
+#: src/issue.c:711
+#, c-format
+msgid "usage: wf issue clear-condition ISSUE_ID REASON\n"
+msgstr ""
+
+#: src/issue.c:997
+#, c-format
+msgid "usage: wf issue comment ISSUE_ID COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1348
+#, c-format
+msgid "usage: wf issue comments ISSUE_ID\n"
+msgstr ""
+
+#: src/issue.c:1189
+#, c-format
+msgid "usage: wf issue delete ISSUE_ID\n"
+msgstr ""
+
+#: src/issue.c:1296
+#, c-format
+msgid "usage: wf issue hold ISSUE_ID COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1313
+#, c-format
+msgid "usage: wf issue hold-with ISSUE_ID CONDITION COMMENT\n"
+msgstr ""
+
+#: src/issue.c:943
+#, c-format
+msgid "usage: wf issue invalidate ISSUE_ID REASON\n"
+msgstr ""
+
+#: src/issue.c:885
+#, c-format
+msgid "usage: wf issue invalidate-condition ISSUE_ID REASON\n"
+msgstr ""
+
+#: src/issue.c:1262
+#, c-format
+msgid "usage: wf issue reject ISSUE_ID COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1279
+#, c-format
+msgid "usage: wf issue reject-with ISSUE_ID CONDITION COMMENT\n"
+msgstr ""
+
+#: src/issue.c:659
+#, c-format
+msgid "usage: wf issue request-condition ISSUE_ID CONDITION\n"
+msgstr ""
+
+#: src/issue.c:834
+#, c-format
+msgid "usage: wf issue resume ISSUE_ID COMMENT\n"
+msgstr ""
+
+#: src/issue.c:1175
+#, c-format
+msgid "usage: wf issue show ISSUE_ID\n"
+msgstr ""
+
+#: src/issue.c:582
+#, c-format
+msgid "usage: wf issue update ISSUE_ID CONTENTS\n"
+msgstr ""
+
+#: src/main.c:93
+#, c-format
+msgid "usage: wf user COMMAND\n"
+msgstr ""
+
+#: src/main.c:463
+#, c-format
+msgid "usage: wf user create USERNAME [User|Assistant]\n"
+msgstr ""
+
+#: src/main.c:471
+#, c-format
+msgid "usage: wf user passwd USERNAME [User|Assistant]\n"
+msgstr ""
+
+#: src/main.c:87
+#, c-format
+msgid "usage: wf version\n"
+msgstr ""
+
+#: src/main.c:80
+#, c-format
+msgid "usage: wf whoami\n"
+msgstr ""
+
+#: src/auth.c:145
+#, c-format
+msgid "user already exists: %s\n"
+msgstr ""
+
+#: src/auth.c:361
+#, c-format
+msgid "wf exec shell returned: user=%s domain=%s\n"
+msgstr ""
+
+#: src/auth.c:357
+#, c-format
+msgid "wf exec shell returned: user=%s domain=%s exit=%d\n"
+msgstr ""
+
+#: src/auth.c:359
+#, c-format
+msgid "wf exec shell returned: user=%s domain=%s signal=%d\n"
+msgstr ""
+
+#: src/auth.c:341
+#, c-format
+msgid "wf exec shell: user=%s domain=%s\n"
+msgstr ""

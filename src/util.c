@@ -2,6 +2,8 @@
 
 #include "util.h"
 
+#include "i18n.h"
+
 #include <openssl/rand.h>
 #include <openssl/sha.h>
 #include <stdio.h>
@@ -42,7 +44,7 @@ int wf_join_args(int argc, char **argv, int start, char **out)
 
     *out = NULL;
     if (start >= argc) {
-        fprintf(stderr, "missing text\n");
+        fprintf(stderr, _("missing text\n"));
         return 1;
     }
 
@@ -55,7 +57,7 @@ int wf_join_args(int argc, char **argv, int start, char **out)
 
     joined = malloc(length + 1);
     if (joined == NULL) {
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, _("out of memory\n"));
         return 1;
     }
 
@@ -97,12 +99,12 @@ int wf_random_hex(char *buffer, size_t hex_chars)
 
     bytes = malloc(bytes_len);
     if (bytes == NULL) {
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, _("out of memory\n"));
         return 1;
     }
     if (RAND_bytes(bytes, (int)bytes_len) != 1) {
         free(bytes);
-        fprintf(stderr, "failed to read random bytes\n");
+        fprintf(stderr, _("failed to read random bytes\n"));
         return 1;
     }
     for (index = 0; index < hex_chars; index += 1) {
@@ -173,7 +175,7 @@ int wf_read_password_once(const char *prompt, char **out)
         tcsetattr(fileno(tty), TCSAFLUSH, &old_term);
         fputc('\n', tty);
         fclose(tty);
-        fprintf(stderr, "failed to read password\n");
+        fprintf(stderr, _("failed to read password\n"));
         return 1;
     }
     tcsetattr(fileno(tty), TCSAFLUSH, &old_term);
@@ -181,12 +183,12 @@ int wf_read_password_once(const char *prompt, char **out)
     fclose(tty);
     wf_trim_newline(buffer);
     if (buffer[0] == '\0') {
-        fprintf(stderr, "password cannot be empty\n");
+        fprintf(stderr, _("password cannot be empty\n"));
         return 1;
     }
     *out = wf_strdup(buffer);
     if (*out == NULL) {
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, _("out of memory\n"));
         return 1;
     }
     return 0;
@@ -208,7 +210,7 @@ int wf_read_password_twice(const char *prompt1, const char *prompt2, char **out)
     if (strcmp(first, second) != 0) {
         free(first);
         free(second);
-        fprintf(stderr, "passwords do not match\n");
+        fprintf(stderr, _("passwords do not match\n"));
         return 1;
     }
     free(second);

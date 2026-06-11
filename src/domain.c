@@ -2,6 +2,7 @@
 
 #include "domain.h"
 
+#include "i18n.h"
 #include "storage.h"
 #include "util.h"
 
@@ -34,7 +35,7 @@ static int wf_format_path(char *buffer, size_t size, const char *format, const c
     int written = snprintf(buffer, size, format, left, right);
 
     if (written < 0 || (size_t)written >= size) {
-        fprintf(stderr, "path too long\n");
+        fprintf(stderr, _("path too long\n"));
         return 1;
     }
     return 0;
@@ -144,7 +145,7 @@ int wf_domain_list(FILE *fp)
         if (recorded[0]) {
             fprintf(fp, "%s  %s\n", short_id, recorded);
         } else {
-            fprintf(fp, "%s  (no path recorded)\n", short_id);
+            fprintf(fp, _("%s  (no path recorded)\n"), short_id);
         }
 next:
         ;
@@ -221,7 +222,7 @@ int wf_domain_resolve_by_id(struct wf_domain *domain, const char *id_or_short)
         if (res == WF_MATCH_EXACT || res == WF_MATCH_PREFIX) {
             snprintf(full, sizeof(full), "%s", matched);
         } else {
-            fprintf(stderr, "domain not found or ambiguous: %s\n", id_or_short);
+            fprintf(stderr, _("domain not found or ambiguous: %s\n"), id_or_short);
             return 1;
         }
     }
@@ -236,7 +237,7 @@ int wf_domain_resolve_by_id(struct wf_domain *domain, const char *id_or_short)
     /* fill the struct similar to normal resolve */
     snprintf(domain->id, sizeof(domain->id), "%s", full);
     snprintf(domain->root, sizeof(domain->root), "%s", root);
-    snprintf(domain->cwd, sizeof(domain->cwd), "%s", recorded[0] ? recorded : "(unknown)");
+    snprintf(domain->cwd, sizeof(domain->cwd), "%s", recorded[0] ? recorded : _("(unknown)"));
     if (wf_format_path(domain->issues, sizeof(domain->issues), "%s/%s", root, "issues") != 0 ||
         wf_format_path(domain->users, sizeof(domain->users), "%s/%s", root, "users.tsv") != 0 ||
         wf_format_path(domain->sessions, sizeof(domain->sessions), "%s/%s", root, "sessions.tsv") != 0) {
@@ -257,8 +258,8 @@ int wf_domain_delete(const char *id_or_short)
     /* For simplicity in delete, if no arg use current? But to delete we need id.
        If id_or_short is NULL or empty, we can error or require explicit. */
     if (id_or_short == NULL || id_or_short[0] == '\0') {
-        fprintf(stderr, "usage: wf domain delete <id|short-id>\n");
-        fprintf(stderr, "See 'wf help semantics' for how domain IDs and short prefixes work.\n");
+        fprintf(stderr, _("usage: wf domain delete <id|short-id>\n"));
+        fprintf(stderr, _("See 'wf help semantics' for how domain IDs and short prefixes work.\n"));
         return 1;
     }
 
@@ -280,7 +281,7 @@ int wf_domain_delete(const char *id_or_short)
 
         d = opendir(base);
         if (d == NULL) {
-            fprintf(stderr, "no domains to delete\n");
+            fprintf(stderr, _("no domains to delete\n"));
             return 1;
         }
         while ((ent = readdir(d)) != NULL && n < 4096) {
@@ -297,10 +298,10 @@ int wf_domain_delete(const char *id_or_short)
         if (res == WF_MATCH_EXACT || res == WF_MATCH_PREFIX) {
             snprintf(full_id, sizeof(full_id), "%s", matched);
         } else if (res == WF_MATCH_AMBIGUOUS) {
-            fprintf(stderr, "ambiguous domain id: %s. See 'wf help semantics'.\n", id_or_short);
+            fprintf(stderr, _("ambiguous domain id: %s. See 'wf help semantics'.\n"), id_or_short);
             return 1;
         } else {
-            fprintf(stderr, "domain not found: %s. See 'wf help concepts' (domain section).\n", id_or_short);
+            fprintf(stderr, _("domain not found: %s. See 'wf help concepts' (domain section).\n"), id_or_short);
             return 1;
         }
     }
@@ -315,7 +316,7 @@ int wf_domain_delete(const char *id_or_short)
         return 1;
     }
     if (access(pathfile, F_OK) != 0) {
-        fprintf(stderr, "refusing to delete: %s does not look like a wf domain. See 'wf help concepts'.\n", root);
+        fprintf(stderr, _("refusing to delete: %s does not look like a wf domain. See 'wf help concepts'.\n"), root);
         return 1;
     }
 
@@ -329,6 +330,6 @@ int wf_domain_delete(const char *id_or_short)
             return 1;
         }
     }
-    fprintf(stderr, "deleted domain %s\n", full_id);
+    fprintf(stderr, _("deleted domain %s\n"), full_id);
     return 0;
 }

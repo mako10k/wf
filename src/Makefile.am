@@ -7,6 +7,8 @@ wf_SOURCES = \
 	cmd.h \
 	domain.c \
 	domain.h \
+	i18n.c \
+	i18n.h \
 	issue.c \
 	issue.h \
 	main.c \
@@ -14,5 +16,7 @@ wf_SOURCES = \
 	storage.h \
 	util.c \
 	util.h
+
+AM_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
 
 AM_CFLAGS = -std=c11 -Wall -Wextra -Wpedantic

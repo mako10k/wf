@@ -149,6 +149,16 @@ Rules:
 - `WF_EXEC_DOMAIN` contains the current domain id, not a path or human-readable label.
 - `wf exec` creates a temporary session, runs one command or one interactive shell, then removes that session automatically when the child process exits.
 
+Localization:
+
+- The CLI uses gettext-based message catalogs for user-facing help and error text.
+- English is the default fallback when no translation catalog is available.
+- In an installed environment, Japanese output is enabled by running under a Japanese UTF-8 locale, for example `LANG=ja_JP.UTF-8` or `LC_ALL=ja_JP.UTF-8`.
+- In a development tree without `make install`, first run `make locale`, then set a Japanese UTF-8 locale and `WF_LOCALEDIR` to the built catalog directory, for example `LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR=$PWD/po/locale`.
+- If the CLI stays in English in a development tree, first check that `po/locale/ja/LC_MESSAGES/wf.mo` exists and that `WF_LOCALEDIR` points to `po/locale`.
+- `WF_LOCALEDIR` is a development-time override. After installation, catalogs are loaded from `localedir` (for example `/usr/local/share/locale`).
+- `make locale` compiles translation catalogs, `make pot` regenerates `po/wf.pot`, and `make update-po` merges new msgids into `po/ja.po`.
+
 Command abbreviation:
 
 - Full commands are the primary public interface. Abbreviations are convenience shortcuts.

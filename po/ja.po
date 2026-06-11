@@ -1,0 +1,1325 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: wf 0.2.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-11 14:37+0900\n"
+"PO-Revision-Date: 2026-06-11 00:00+0000\n"
+"Last-Translator: GitHub Copilot\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/main.c:102
+#, c-format
+msgid ""
+"\n"
+"See 'wf help concepts' (actor / role section).\n"
+msgstr ""
+"\n"
+"'actor / role' の説明は 'wf help concepts' を参照してください。\n"
+
+#: src/main.c:114
+#, c-format
+msgid ""
+"\n"
+"See 'wf help concepts' (domain section) and 'wf help semantics'.\n"
+msgstr ""
+"\n"
+"'domain' の説明は 'wf help concepts' と 'wf help semantics' を参照してくださ"
+"い。\n"
+
+#: src/main.c:186
+#, c-format
+msgid "                 'wf exec' or 'wf env export'.\n"
+msgstr ""
+"                 'wf exec' または 'wf env export' を使います。\n"
+
+#: src/main.c:188
+#, c-format
+msgid "                 (approve/reject/hold/resume), invalidate a\n"
+msgstr "                 (approve/reject/hold/resume)、requested condition の無効化、\n"
+
+#: src/main.c:187
+#, c-format
+msgid "                 Can read issues, comment, review issues\n"
+msgstr "                 issue の参照、comment、review ができ、\n"
+
+#: src/main.c:193
+#, c-format
+msgid "                 comment.\n"
+msgstr "                 comment もできます。\n"
+
+#: src/main.c:192
+#, c-format
+msgid "                 condition, clear that condition, and\n"
+msgstr "                 condition の要求、解除を行い、\n"
+
+#: src/main.c:185
+#, c-format
+msgid "                 creating an execution environment with\n"
+msgstr "                 実行環境の作成には\n"
+
+#: src/main.c:189
+#, c-format
+msgid "                 requested condition, or invalidate an issue.\n"
+msgstr "                 requested condition の無効化や issue の無効化もできます。\n"
+
+#: src/main.c:191
+#, c-format
+msgid "                 update/delete its own issues, request a\n"
+msgstr "                 自分の issue の update/delete、condition の要求ができ、\n"
+
+#: src/main.c:88
+#, c-format
+msgid "       wf --version\n"
+msgstr "       wf --version\n"
+
+#: src/main.c:63
+#, c-format
+msgid "       wf exec -- COMMAND [ARGS...]\n"
+msgstr "       wf exec -- COMMAND [ARGS...]\n"
+
+#: src/main.c:253
+#, c-format
+msgid "      # wf exec also exports WF_EXEC_USER and WF_EXEC_DOMAIN\n"
+msgstr "      # wf exec は WF_EXEC_USER と WF_EXEC_DOMAIN も export します\n"
+
+#: src/main.c:178
+#, c-format
+msgid "      $XDG_DATA_HOME/wf/domains/<64hex-id>/. Different directories\n"
+msgstr "      $XDG_DATA_HOME/wf/domains/<64hex-id>/ に保存されます。異なる directory は\n"
+
+#: src/main.c:181
+#, c-format
+msgid "      'WF_DOMAIN=shortid ...' to operate on a non-current domain.\n"
+msgstr "      'WF_DOMAIN=shortid ...' で現在以外の domain も操作できます。\n"
+
+#: src/main.c:221
+#, c-format
+msgid "      'too short', 'ambiguous issue id' or 'issue not found'.\n"
+msgstr "      'too short'、'ambiguous issue id'、'issue not found' を返します。\n"
+
+#: src/main.c:214
+#, c-format
+msgid "      (e.g. 'ex' for 'exec', 'i' for 'issue').\n"
+msgstr "      (例: 'exec' は 'ex'、'issue' は 'i')。\n"
+
+#: src/main.c:177
+#, c-format
+msgid "      (users, sessions, issues) for that directory lives under\n"
+msgstr "      その directory のデータ (users, sessions, issues) は\n"
+
+#: src/main.c:219
+#, c-format
+msgid "      16-character hex identifier of an issue. May be given as a\n"
+msgstr "      issue の 16 桁 16 進識別子です。\n"
+
+#: src/main.c:205
+#, c-format
+msgid "      Ambiguous input produces a clear error and the relevant usage.\n"
+msgstr "      曖昧な入力では明確なエラーと対応する usage を表示します。\n"
+
+#: src/main.c:175
+#, c-format
+msgid "      An isolation boundary. The domain is derived from the current\n"
+msgstr "      分離境界です。domain は現在の\n"
+
+#: src/issue.c:1132
+#, c-format
+msgid "      Approve only part of the request under a reviewer condition.\n"
+msgstr "reviewer condition の下で要求の一部だけを approve します。\n"
+
+#: src/issue.c:1130
+#, c-format
+msgid "      Approve using a reviewer-supplied condition instead.\n"
+msgstr "reviewer が指定した condition を使って approve します。\n"
+
+#: src/issue.c:1128
+#, c-format
+msgid "      Approve using the requested condition if one is active.\n"
+msgstr ""
+"      requested condition が active の場合はそれを使って approve します。\n"
+
+#: src/main.c:190
+#, c-format
+msgid "      Assistant- AI / automation. No password. Can create issues and\n"
+msgstr ""
+"      Assistant- AI / automation です。パスワード不要で、issue を作成でき、\n"
+
+#: src/main.c:230
+#, c-format
+msgid "      Assistants may attach a requested condition before review.\n"
+msgstr "      Assistant は review 前に requested condition を付与できます。\n"
+
+#: src/main.c:202
+#, c-format
+msgid "      Both top-level COMMANDs and 'issue' subcommands support\n"
+msgstr "      top-level COMMAND と 'issue' subcommand はどちらも\n"
+
+#: src/main.c:224
+#, c-format
+msgid "      By default the domain is computed from the current working\n"
+msgstr "      既定では domain は現在の作業\n"
+
+#: src/main.c:215
+#, c-format
+msgid "      Entity subcommands under 'env', 'user', 'issue', and 'domain'\n"
+msgstr "      'env'、'user'、'issue'、'domain' 配下の subcommand も\n"
+
+#: src/issue.c:1144
+#, c-format
+msgid ""
+"      Invalidate only the requested condition and keep the issue itself "
+"active.\n"
+msgstr ""
+"      requested condition のみを無効化し、issue 自体は active のままにしま"
+"す。\n"
+
+#: src/issue.c:1146
+#, c-format
+msgid "      Mark the whole issue invalid.\n"
+msgstr "      issue 全体を invalid にします。\n"
+
+#: src/issue.c:1140
+#, c-format
+msgid ""
+"      Put the issue on hold using a reviewer-supplied condition instead.\n"
+msgstr ""
+"      reviewer が指定した condition を使って issue を hold にします。\n"
+
+#: src/issue.c:1138
+#, c-format
+msgid ""
+"      Put the issue on hold using the requested condition if one is active.\n"
+msgstr ""
+"      requested condition が active の場合はそれを使って issue を hold にしま"
+"す。\n"
+
+#: src/issue.c:1136
+#, c-format
+msgid "      Reject using a reviewer-supplied condition instead.\n"
+msgstr "      reviewer が指定した condition を使って reject します。\n"
+
+#: src/issue.c:1134
+#, c-format
+msgid "      Reject using the requested condition if one is active.\n"
+msgstr ""
+"      requested condition が active の場合はそれを使って reject します。\n"
+
+#: src/issue.c:1125
+#, c-format
+msgid "      Remove the requested condition while the issue is still open.\n"
+msgstr "      issue が open の間、requested condition を削除します。\n"
+
+#: src/issue.c:1142
+#, c-format
+msgid "      Return a held issue to open state.\n"
+msgstr "      hold 中の issue を open 状態へ戻します。\n"
+
+#: src/main.c:227
+#, c-format
+msgid "      See also 'wf domain ls' and 'wf domain current'.\n"
+msgstr "      'wf domain ls' と 'wf domain current' も参照してください。\n"
+
+#: src/issue.c:1123
+#, c-format
+msgid ""
+"      Set or replace the requested condition while the issue is still open.\n"
+msgstr ""
+"      issue が open の間、requested condition を設定または置換します。\n"
+
+#: src/main.c:196
+#, c-format
+msgid "      The central work item. Has a 16-hex ID, content, creator,\n"
+msgstr "      中心となる作業項目です。16 桁の 16 進 ID、content、creator、\n"
+
+#: src/main.c:213
+#, c-format
+msgid "      Top-level command. May be abbreviated to a unique prefix\n"
+msgstr "      Top-level command は一意な接頭辞に省略できます。\n"
+
+#: src/main.c:184
+#, c-format
+msgid "      User     - human approver. Requires TTY password when\n"
+msgstr "      User     - 人間の approver です。TTY パスワードが必要で、\n"
+
+#: src/main.c:231
+#, c-format
+msgid "      Users may approve/reject/hold using that condition as-is,\n"
+msgstr ""
+"      User はその condition をそのまま使って approve/reject/hold でき、\n"
+
+#: src/main.c:216
+#, c-format
+msgid ""
+"      also use unique-prefix matching (e.g. 'en ex', 'us pas', 'i sh', 'dom "
+"cur').\n"
+msgstr ""
+"      一意接頭辞一致も使えます (例: 'en ex', 'us pas', 'i sh', 'dom cur')。\n"
+
+#: src/main.c:198
+#, c-format
+msgid "      decision details, approver and comments. Assistants create\n"
+msgstr "      decision の詳細、approver、comments を持ちます。Assistant は\n"
+
+#: src/main.c:225
+#, c-format
+msgid "      directory. You can force another domain with the environment\n"
+msgstr ""
+"      ディレクトリから計算されます。環境変数で別 domain を強制できます。\n"
+
+#: src/main.c:180
+#, c-format
+msgid "      hash. Use 'wf domain ls' to see registered domains and\n"
+msgstr ""
+"      path hash に依存します。登録済み domain は 'wf domain ls' で確認で"
+"き、\n"
+
+#: src/main.c:197
+#, c-format
+msgid "      issue state, optional requested condition, recorded review\n"
+msgstr ""
+"      issue state、任意の requested condition、記録された review を持ち、\n"
+
+#: src/main.c:199
+#, c-format
+msgid "      issues and manage requested conditions; Users review them.\n"
+msgstr ""
+"      issue を作成して requested condition を管理し、User が review しま"
+"す。\n"
+
+#: src/main.c:179
+#, c-format
+msgid "      normally get different domains unless they share the same path\n"
+msgstr ""
+"      通常は異なる domain になりますが、同じ path を共有する場合は別です。\n"
+
+#: src/main.c:233
+#, c-format
+msgid "      only the requested condition, or invalidate the whole issue.\n"
+msgstr ""
+"      requested condition のみを無効化するか、issue 全体を無効化できます。\n"
+
+#: src/main.c:232
+#, c-format
+msgid "      supply an override condition, partially approve, invalidate\n"
+msgstr "      override condition の提示、部分 approve、無効化もできます。\n"
+
+#: src/main.c:203
+#, c-format
+msgid "      unique prefix matching (exact match wins). ISSUE_IDs support\n"
+msgstr "      一意接頭辞一致を使えます (完全一致優先)。ISSUE_ID も\n"
+
+#: src/main.c:220
+#, c-format
+msgid "      unique prefix of 2 or more characters. The resolver reports\n"
+msgstr "      2 文字以上の一意な接頭辞で指定できます。resolver は\n"
+
+#: src/main.c:204
+#, c-format
+msgid "      unique prefixes of 2 or more characters.\n"
+msgstr "      2 文字以上の一意な接頭辞に省略できます。\n"
+
+#: src/main.c:226
+#, c-format
+msgid "      variable WF_DOMAIN (full id or unique short prefix).\n"
+msgstr ""
+"      環境変数 WF_DOMAIN (完全 id または一意な短縮 prefix) を使います。\n"
+
+#: src/main.c:176
+#, c-format
+msgid "      working directory (SHA-256 of \"wf:<realpath>\"). All data\n"
+msgstr ""
+"      working directory (SHA-256 of \"wf:<realpath>\") から導出されます。全"
+"データは\n"
+
+#: src/issue.c:1111 src/main.c:94
+#, c-format
+msgid "  (COMMAND may be abbreviated to a unique prefix.)\n"
+msgstr "  (COMMAND は一意な接頭辞に省略できます。)\n"
+
+#: src/main.c:108
+#, c-format
+msgid ""
+"  (COMMAND may be abbreviated to a unique prefix; aliases: ls, current.)\n"
+msgstr "  (COMMAND は一意な接頭辞に省略できます。別名: ls, current。)\n"
+
+#: src/main.c:68
+#, c-format
+msgid "  - exports WF_EXEC_USER and WF_EXEC_DOMAIN (domain id)\n"
+msgstr "  - シェルへ WF_EXEC_USER と WF_EXEC_DOMAIN (domain id) を設定します\n"
+
+#: src/main.c:67
+#, c-format
+msgid "  - prints a return banner to stderr after the shell exits\n"
+msgstr "  - シェル終了後に復帰バナーを stderr に表示します\n"
+
+#: src/main.c:66
+#, c-format
+msgid "  - prints a start banner to stderr when the shell begins\n"
+msgstr "  - シェル開始時に開始バナーを stderr に表示します\n"
+
+#: src/main.c:265
+#, c-format
+msgid "  As a User, override the requested condition during review:\n"
+msgstr "  User として review 中に requested condition を上書きする:\n"
+
+#: src/main.c:262
+#, c-format
+msgid "  As an Assistant, request a condition before review:\n"
+msgstr "  Assistant として review 前に condition を要求する:\n"
+
+#: src/main.c:212
+#, c-format
+msgid "  COMMAND\n"
+msgstr "  COMMAND\n"
+
+#: src/main.c:243
+#, c-format
+msgid "  Create a named Assistant explicitly:\n"
+msgstr "  名前付き Assistant を明示的に作成する:\n"
+
+#: src/main.c:223
+#, c-format
+msgid "  DOMAIN selection\n"
+msgstr "  DOMAIN の選択\n"
+
+#: src/issue.c:1114
+#, c-format
+msgid "  Entity: issue (standard list + CRUD + review actions)\n"
+msgstr "  エンティティ: issue (標準 list + CRUD + review 操作)\n"
+
+#: src/main.c:95
+#, c-format
+msgid "  Entity: user (list + create + password management)\n"
+msgstr "  エンティティ: user (list + create + password 管理)\n"
+
+#: src/issue.c:1153
+#, c-format
+msgid ""
+"  Example: wf issue approve-with 0123abcd \"only after canary passes\" "
+"\"looks acceptable\"\n"
+msgstr ""
+"  例: wf issue approve-with 0123abcd \"canary 通過後のみ\" \"許容可能\"\n"
+
+#: src/main.c:255
+#, c-format
+msgid "  Export environment into the current shell:\n"
+msgstr "  現在のシェルへ環境変数を反映する:\n"
+
+#: src/main.c:218
+#, c-format
+msgid "  ISSUE_ID\n"
+msgstr "  ISSUE_ID\n"
+
+#: src/issue.c:1112
+#, c-format
+msgid ""
+"  ISSUE_ID may be abbreviated to a unique prefix of 2 or more characters.\n"
+msgstr "  ISSUE_ID は 2 文字以上の一意な接頭辞に省略できます。\n"
+
+#: src/main.c:81
+#, c-format
+msgid "  Print the current authenticated wf session username.\n"
+msgstr "  現在認証中の wf セッションのユーザー名を表示します。\n"
+
+#: src/issue.c:1152
+#, c-format
+msgid "  Quote CONDITION, COMMENT, and REASON when they contain spaces.\n"
+msgstr "  CONDITION、COMMENT、REASON に空白を含む場合は引用してください。\n"
+
+#: src/main.c:82
+#, c-format
+msgid "  Requires an active session from 'wf exec' or 'wf env export'.\n"
+msgstr ""
+"  'wf exec' または 'wf env export' で作成した有効なセッションが必要です。\n"
+
+#: src/main.c:229
+#, c-format
+msgid "  Review flow\n"
+msgstr "  Review フロー\n"
+
+#: src/main.c:271
+#, c-format
+msgid "  See all known domains:\n"
+msgstr "  既知の domain を一覧表示する:\n"
+
+#: src/main.c:259
+#, c-format
+msgid "  Show the current authenticated wf session user:\n"
+msgstr "  現在認証されている wf セッションのユーザーを表示する:\n"
+
+#: src/main.c:247
+#, c-format
+msgid "  Start an interactive User shell:\n"
+msgstr "  対話的な User シェルを開始する:\n"
+
+#: src/main.c:240
+#, c-format
+msgid "  The reserved 'assistant' account auto-registers on first use:\n"
+msgstr "  予約済みの 'assistant' アカウントは初回利用時に自動登録されます:\n"
+
+#: src/main.c:268
+#, c-format
+msgid "  Work with a different directory's domain without cd:\n"
+msgstr "  cd せずに別ディレクトリの domain を扱う:\n"
+
+#: src/main.c:201
+#, c-format
+msgid "  abbreviation:\n"
+msgstr "  省略規則:\n"
+
+#: src/main.c:183
+#, c-format
+msgid "  actor / role:\n"
+msgstr "  actor / role:\n"
+
+#: src/main.c:100
+#, c-format
+msgid "  create: new user only; fails if USERNAME already exists.\n"
+msgstr ""
+"  create: 新規ユーザーのみ作成します。USERNAME が既に存在する場合は失敗しま"
+"す。\n"
+
+#: src/main.c:25
+#, c-format
+msgid ""
+"  domain    isolation boundary and data root (list/create/show/delete)\n"
+msgstr "  domain    分離境界とデータルート (list/create/show/delete)\n"
+
+#: src/main.c:174
+#, c-format
+msgid "  domain:\n"
+msgstr "  domain:\n"
+
+#: src/main.c:24
+#, c-format
+msgid "  issue     the primary work item (CRUD + workflow actions)\n"
+msgstr "  issue     主たる作業項目 (CRUD + workflow 操作)\n"
+
+#: src/main.c:195
+#, c-format
+msgid "  issue:\n"
+msgstr "  issue:\n"
+
+#: src/main.c:101
+#, c-format
+msgid "  passwd: create or update credentials/role for USERNAME.\n"
+msgstr "  passwd: USERNAME の資格情報と role を作成または更新します。\n"
+
+#: src/main.c:26
+#, c-format
+msgid "  user      human or assistant identity\n"
+msgstr "  user      人間または assistant の識別子\n"
+
+#: src/main.c:40
+#, c-format
+msgid "  wf --version\n"
+msgstr "  wf --version\n"
+
+#: src/main.c:39
+#, c-format
+msgid "  wf COMMAND --help\n"
+msgstr "  wf COMMAND --help\n"
+
+#: src/main.c:35
+#, c-format
+msgid "  wf domain COMMAND ...\n"
+msgstr "  wf domain COMMAND ...\n"
+
+#: src/main.c:110
+#, c-format
+msgid "  wf domain create\n"
+msgstr "  wf domain create\n"
+
+#: src/main.c:112
+#, c-format
+msgid "  wf domain delete <id|short>\n"
+msgstr "  wf domain delete <id|short>\n"
+
+#: src/main.c:109
+#, c-format
+msgid "  wf domain list\n"
+msgstr "  wf domain list\n"
+
+#: src/main.c:111
+#, c-format
+msgid "  wf domain show [id|short]\n"
+msgstr "  wf domain show [id|short]\n"
+
+#: src/main.c:113
+#, c-format
+msgid "  wf domain status\n"
+msgstr "  wf domain status\n"
+
+#: src/main.c:30
+#, c-format
+msgid "  wf env COMMAND\n"
+msgstr "  wf env COMMAND\n"
+
+#: src/main.c:75
+#, c-format
+msgid "  wf env clear\n"
+msgstr "  wf env clear\n"
+
+#: src/main.c:74
+#, c-format
+msgid "  wf env export [USERNAME]\n"
+msgstr "  wf env export [USERNAME]\n"
+
+#: src/main.c:29
+#, c-format
+msgid "  wf exec [USERNAME] [-- COMMAND ...]\n"
+msgstr "  wf exec [USERNAME] [-- COMMAND ...]\n"
+
+#: src/main.c:38
+#, c-format
+msgid "  wf help [COMMAND|TOPIC]\n"
+msgstr "  wf help [COMMAND|TOPIC]\n"
+
+#: src/main.c:34
+#, c-format
+msgid "  wf issue COMMAND ...\n"
+msgstr "  wf issue COMMAND ...\n"
+
+#: src/issue.c:1127
+#, c-format
+msgid "  wf issue approve ISSUE_ID COMMENT\n"
+msgstr "  wf issue approve ISSUE_ID COMMENT\n"
+
+#: src/issue.c:1131
+#, c-format
+msgid "  wf issue approve-partial ISSUE_ID CONDITION COMMENT\n"
+msgstr "  wf issue approve-partial ISSUE_ID CONDITION COMMENT\n"
+
+#: src/issue.c:1129
+#, c-format
+msgid "  wf issue approve-with ISSUE_ID CONDITION COMMENT\n"
+msgstr "  wf issue approve-with ISSUE_ID CONDITION COMMENT\n"
+
+#: src/issue.c:1124
+#, c-format
+msgid "  wf issue clear-condition ISSUE_ID REASON\n"
+msgstr "  wf issue clear-condition ISSUE_ID REASON\n"
+
+#: src/issue.c:1148
+#, c-format
+msgid "  wf issue comment ISSUE_ID COMMENT\n"
+msgstr "  wf issue comment ISSUE_ID COMMENT\n"
+
+#: src/issue.c:1149
+#, c-format
+msgid "  wf issue comments ISSUE_ID\n"
+msgstr "  wf issue comments ISSUE_ID\n"
+
+#: src/issue.c:1117
+#, c-format
+msgid "  wf issue create CONTENTS\n"
+msgstr "  wf issue create CONTENTS\n"
+
+#: src/issue.c:1120
+#, c-format
+msgid "  wf issue delete ISSUE_ID\n"
+msgstr "  wf issue delete ISSUE_ID\n"
+
+#: src/issue.c:1137
+#, c-format
+msgid "  wf issue hold ISSUE_ID COMMENT\n"
+msgstr "  wf issue hold ISSUE_ID COMMENT\n"
+
+#: src/issue.c:1139
+#, c-format
+msgid "  wf issue hold-with ISSUE_ID CONDITION COMMENT\n"
+msgstr "  wf issue hold-with ISSUE_ID CONDITION COMMENT\n"
+
+#: src/issue.c:1145
+#, c-format
+msgid "  wf issue invalidate ISSUE_ID REASON\n"
+msgstr "  wf issue invalidate ISSUE_ID REASON\n"
+
+#: src/issue.c:1143
+#, c-format
+msgid "  wf issue invalidate-condition ISSUE_ID REASON\n"
+msgstr "  wf issue invalidate-condition ISSUE_ID REASON\n"
+
+#: src/issue.c:1116
+#, c-format
+msgid "  wf issue list\n"
+msgstr "  wf issue list\n"
+
+#: src/issue.c:1133
+#, c-format
+msgid "  wf issue reject ISSUE_ID COMMENT\n"
+msgstr "  wf issue reject ISSUE_ID COMMENT\n"
+
+#: src/issue.c:1135
+#, c-format
+msgid "  wf issue reject-with ISSUE_ID CONDITION COMMENT\n"
+msgstr "  wf issue reject-with ISSUE_ID CONDITION COMMENT\n"
+
+#: src/issue.c:1122
+#, c-format
+msgid "  wf issue request-condition ISSUE_ID CONDITION\n"
+msgstr "  wf issue request-condition ISSUE_ID CONDITION\n"
+
+#: src/issue.c:1141
+#, c-format
+msgid "  wf issue resume ISSUE_ID COMMENT\n"
+msgstr "  wf issue resume ISSUE_ID COMMENT\n"
+
+#: src/issue.c:1150
+#, c-format
+msgid "  wf issue search KEYWORD\n"
+msgstr "  wf issue search KEYWORD\n"
+
+#: src/issue.c:1118
+#, c-format
+msgid "  wf issue show ISSUE_ID\n"
+msgstr "  wf issue show ISSUE_ID\n"
+
+#: src/issue.c:1119
+#, c-format
+msgid "  wf issue update ISSUE_ID CONTENTS\n"
+msgstr "  wf issue update ISSUE_ID CONTENTS\n"
+
+#: src/main.c:33
+#, c-format
+msgid "  wf user COMMAND ...\n"
+msgstr "  wf user COMMAND ...\n"
+
+#: src/main.c:97
+#, c-format
+msgid "  wf user create USERNAME [User|Assistant]\n"
+msgstr "  wf user create USERNAME [User|Assistant]\n"
+
+#: src/main.c:96
+#, c-format
+msgid "  wf user list\n"
+msgstr "  wf user list\n"
+
+#: src/main.c:98
+#, c-format
+msgid "  wf user passwd USERNAME [User|Assistant]\n"
+msgstr "  wf user passwd USERNAME [User|Assistant]\n"
+
+#: src/main.c:32
+#, c-format
+msgid "  wf version\n"
+msgstr "  wf version\n"
+
+#: src/main.c:31
+#, c-format
+msgid "  wf whoami          # current wf session user\n"
+msgstr "  wf whoami          # 現在の wf セッションユーザー\n"
+
+#: src/domain.c:148
+#, c-format
+msgid "%s  (no path recorded)\n"
+msgstr "%s  (パス未記録)\n"
+
+#: src/domain.c:240
+msgid "(unknown)"
+msgstr "(不明)"
+
+#: src/main.c:28
+#, c-format
+msgid "Commands:\n"
+msgstr "コマンド:\n"
+
+#: src/main.c:238
+#, c-format
+msgid "Common usecases:\n"
+msgstr "よくある使い方:\n"
+
+#: src/main.c:172
+#, c-format
+msgid "Concepts:\n"
+msgstr "概念:\n"
+
+#: src/main.c:23
+#, c-format
+msgid "Entities:\n"
+msgstr "エンティティ:\n"
+
+#: src/main.c:37
+#, c-format
+msgid "Help:\n"
+msgstr "ヘルプ:\n"
+
+#: src/main.c:65
+#, c-format
+msgid "Interactive shell mode (no COMMAND):\n"
+msgstr "対話シェルモード (COMMAND なし):\n"
+
+#: src/auth.c:166
+msgid "New password: "
+msgstr "新しいパスワード: "
+
+#: src/main.c:167
+#, c-format
+msgid ""
+"No detailed help for topic '%s'. Try 'wf help concepts' or 'wf help "
+"semantics'.\n"
+msgstr ""
+"トピック '%s' の詳細ヘルプはありません。'wf help concepts' または 'wf help "
+"semantics' を試してください。\n"
+
+#: src/auth.c:166
+msgid "Retype password: "
+msgstr "再入力してください: "
+
+#: src/issue.c:1155
+#, c-format
+msgid ""
+"See 'wf help concepts' for the meaning of roles and ISSUE_ID abbreviation.\n"
+msgstr ""
+"role と ISSUE_ID の省略規則は 'wf help concepts' を参照してください。\n"
+
+#: src/domain.c:262
+#, c-format
+msgid "See 'wf help semantics' for how domain IDs and short prefixes work.\n"
+msgstr ""
+"domain ID と短縮 prefix の扱いは 'wf help semantics' を参照してください。\n"
+
+#: src/main.c:210
+#, c-format
+msgid "Semantics:\n"
+msgstr "意味規則:\n"
+
+#: src/main.c:42
+#, c-format
+msgid "Topics: concepts, semantics, usecases\n"
+msgstr "トピック: concepts, semantics, usecases\n"
+
+#: src/main.c:595
+#, c-format
+msgid "ambiguous command: %s. See 'wf help' or 'wf help concepts'.\n"
+msgstr ""
+"曖昧なコマンドです: %s。'wf help' または 'wf help concepts' を参照してください。\n"
+
+#: src/main.c:503
+#, c-format
+msgid "ambiguous domain command: %s. See 'wf help semantics'.\n"
+msgstr "曖昧な domain コマンドです: %s。'wf help semantics' を参照してください。\n"
+
+#: src/domain.c:301
+#, c-format
+msgid "ambiguous domain id: %s. See 'wf help semantics'.\n"
+msgstr "曖昧な domain id です: %s。'wf help semantics' を参照してください。\n"
+
+#: src/main.c:322
+#, c-format
+msgid "ambiguous env command: %s. See 'wf help semantics'.\n"
+msgstr "曖昧な env コマンドです: %s。'wf help semantics' を参照してください。\n"
+
+#: src/issue.c:1415
+#, c-format
+msgid "ambiguous issue command: %s. See 'wf help semantics'.\n"
+msgstr "曖昧な issue コマンドです: %s。'wf help semantics' を参照してください。\n"
+
+#: src/issue.c:220
+#, c-format
+msgid "ambiguous issue id: %s. See 'wf help semantics'.\n"
+msgstr "曖昧な issue id です: %s。'wf help semantics' を参照してください。\n"
+
+#: src/main.c:429
+#, c-format
+msgid "ambiguous user command: %s. See 'wf help semantics'.\n"
+msgstr "曖昧な user コマンドです: %s。'wf help semantics' を参照してください。\n"
+
+#: src/auth.c:181
+#, c-format
+msgid "assistant registered for %s\n"
+msgstr "%s 用の assistant を登録しました\n"
+
+#: src/auth.c:221
+#, c-format
+msgid "authentication failed\n"
+msgstr "認証に失敗しました\n"
+
+#: src/issue.c:795
+#, c-format
+msgid "cannot change review decision unless issue is open\n"
+msgstr "issue が open でない限り review decision は変更できません\n"
+
+#: src/issue.c:726
+#, c-format
+msgid ""
+"cannot clear requested condition after the issue reached a terminal state\n"
+msgstr "issue が終端状態になった後は requested condition を削除できません\n"
+
+#: src/issue.c:731
+#, c-format
+msgid "cannot clear requested condition unless issue is open\n"
+msgstr "issue が open でない限り requested condition は削除できません\n"
+
+#: src/issue.c:631
+#, c-format
+msgid "cannot delete issue after it has reached a terminal state\n"
+msgstr "issue が終端状態になった後は削除できません\n"
+
+#: src/issue.c:958
+#, c-format
+msgid "cannot invalidate issue after it has reached a terminal state\n"
+msgstr "issue が終端状態になった後は invalid にできません\n"
+
+#: src/issue.c:915
+#, c-format
+msgid "cannot invalidate requested condition after a review decision\n"
+msgstr "review decision 後は requested condition を無効化できません\n"
+
+#: src/issue.c:900
+#, c-format
+msgid ""
+"cannot invalidate requested condition after the issue reached a terminal "
+"state\n"
+msgstr "issue が終端状態になった後は requested condition を無効化できません\n"
+
+#: src/issue.c:849
+#, c-format
+msgid "cannot resume issue unless it is on hold\n"
+msgstr "issue が hold でない限り resume できません\n"
+
+#: src/issue.c:790
+#, c-format
+msgid "cannot review issue after it has reached a terminal state\n"
+msgstr "issue が終端状態になった後は review できません\n"
+
+#: src/issue.c:593
+#, c-format
+msgid "cannot update issue after it has reached a terminal state\n"
+msgstr "issue が終端状態になった後は更新できません\n"
+
+#: src/issue.c:674
+#, c-format
+msgid ""
+"cannot update requested condition after the issue reached a terminal state\n"
+msgstr "issue が終端状態になった後は requested condition を更新できません\n"
+
+#: src/issue.c:679
+#, c-format
+msgid "cannot update requested condition unless issue is open\n"
+msgstr "issue が open でない限り requested condition は更新できません\n"
+
+#: src/main.c:295
+#, c-format
+msgid "child commands require '--' before COMMAND\n"
+msgstr "子コマンドを渡すには COMMAND の前に '--' が必要です\n"
+
+#: src/issue.c:125
+#, c-format
+msgid "corrupt decision basis: %s\n"
+msgstr "decision basis が壊れています: %s\n"
+
+#: src/issue.c:121
+#, c-format
+msgid "corrupt decision scope: %s\n"
+msgstr "decision scope が壊れています: %s\n"
+
+#: src/issue.c:117
+#, c-format
+msgid "corrupt decision type: %s\n"
+msgstr "decision type が壊れています: %s\n"
+
+#: src/issue.c:109
+#, c-format
+msgid "corrupt issue state: %s\n"
+msgstr "issue state が壊れています: %s\n"
+
+#: src/issue.c:255 src/issue.c:263
+#, c-format
+msgid "corrupt issue: %s\n"
+msgstr "issue が壊れています: %s\n"
+
+#: src/issue.c:113
+#, c-format
+msgid "corrupt requested condition state: %s\n"
+msgstr "requested condition state が壊れています: %s\n"
+
+#: src/domain.c:333
+#, c-format
+msgid "deleted domain %s\n"
+msgstr "domain %s を削除しました\n"
+
+#: src/domain.c:225
+#, c-format
+msgid "domain not found or ambiguous: %s\n"
+msgstr "domain が見つからないか曖昧です: %s\n"
+
+#: src/domain.c:304
+#, c-format
+msgid "domain not found: %s. See 'wf help concepts' (domain section).\n"
+msgstr ""
+"domain が見つかりません: %s。'wf help concepts' の domain 節を参照してくださ"
+"い。\n"
+
+#: src/util.c:178
+#, c-format
+msgid "failed to read password\n"
+msgstr "パスワードを読み取れませんでした\n"
+
+#: src/util.c:107
+#, c-format
+msgid "failed to read random bytes\n"
+msgstr "乱数バイトの読み取りに失敗しました\n"
+
+#: src/auth.c:412
+#, c-format
+msgid ""
+"invalid WF_TOKEN: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env "
+"export USERNAME)\"'\n"
+msgstr ""
+"WF_TOKEN が不正です: 'wf exec USERNAME -- COMMAND' または 'eval \"$(wf env "
+"export USERNAME)\"' を実行してください\n"
+
+#: src/issue.c:136 src/issue.c:152 src/issue.c:180
+#, c-format
+msgid "invalid issue id\n"
+msgstr "issue id が不正です\n"
+
+#: src/auth.c:38
+#, c-format
+msgid "invalid role: %s\n"
+msgstr "role が不正です: %s\n"
+
+#: src/auth.c:141 src/auth.c:159
+#, c-format
+msgid "invalid username\n"
+msgstr "username が不正です\n"
+
+#: src/issue.c:184
+#, c-format
+msgid "issue id too short (minimum 2 characters). See 'wf help semantics'.\n"
+msgstr ""
+"issue id が短すぎます (最小 2 文字)。'wf help semantics' を参照してくださ"
+"い。\n"
+
+#: src/issue.c:249
+#, c-format
+msgid "issue not found: %s\n"
+msgstr "issue が見つかりません: %s\n"
+
+#: src/issue.c:223
+#, c-format
+msgid "issue not found: %s. See 'wf help semantics'.\n"
+msgstr "issue が見つかりません: %s。'wf help semantics' を参照してください。\n"
+
+#: src/issue.c:175
+#, c-format
+msgid "missing issue id\n"
+msgstr "issue id がありません\n"
+
+#: src/util.c:47
+#, c-format
+msgid "missing text\n"
+msgstr "テキストがありません\n"
+
+#: src/domain.c:284
+#, c-format
+msgid "no domains to delete\n"
+msgstr "削除対象の domain がありません\n"
+
+#: src/issue.c:905
+#, c-format
+msgid "no requested condition to invalidate\n"
+msgstr "無効化する requested condition がありません\n"
+
+#: src/auth.c:389 src/auth.c:394
+#, c-format
+msgid ""
+"not logged in: run 'wf exec USERNAME -- COMMAND' or 'eval \"$(wf env export "
+"USERNAME)\"'\n"
+msgstr ""
+"ログインしていません: 'wf exec USERNAME -- COMMAND' または 'eval \"$(wf env "
+"export USERNAME)\"' を実行してください\n"
+
+#: src/issue.c:75 src/issue.c:94 src/issue.c:449 src/issue.c:490
+#: src/storage.c:80 src/storage.c:114 src/util.c:60 src/util.c:102
+#: src/util.c:191
+#, c-format
+msgid "out of memory\n"
+msgstr "メモリ不足です\n"
+
+#: src/util.c:186
+#, c-format
+msgid "password cannot be empty\n"
+msgstr "パスワードは空にできません\n"
+
+#: src/auth.c:183
+#, c-format
+msgid "password updated for %s (%s)\n"
+msgstr "%s のパスワードを更新しました (%s)\n"
+
+#: src/util.c:213
+#, c-format
+msgid "passwords do not match\n"
+msgstr "パスワードが一致しません\n"
+
+#: src/domain.c:38 src/issue.c:141 src/issue.c:157 src/storage.c:21
+#, c-format
+msgid "path too long\n"
+msgstr "パスが長すぎます\n"
+
+#: src/issue.c:636
+#, c-format
+msgid "permission denied: Assistant can delete own issues only\n"
+msgstr "権限がありません: Assistant は自分の issue のみ削除できます\n"
+
+#: src/issue.c:598 src/issue.c:684 src/issue.c:736
+#, c-format
+msgid "permission denied: Assistant can update own issues only\n"
+msgstr "権限がありません: Assistant は自分の issue のみ更新できます\n"
+
+#: src/issue.c:465
+#, c-format
+msgid "permission denied: only Assistant can create issues\n"
+msgstr "権限がありません: issue を作成できるのは Assistant のみです\n"
+
+#: src/issue.c:663 src/issue.c:715
+#, c-format
+msgid "permission denied: only Assistant can update requested conditions\n"
+msgstr ""
+"権限がありません: requested condition を更新できるのは Assistant のみです\n"
+
+#: src/issue.c:779 src/issue.c:838 src/issue.c:889 src/issue.c:947
+#, c-format
+msgid "permission denied: only User can change approval status\n"
+msgstr "権限がありません: approval status を変更できるのは User のみです\n"
+
+#: src/domain.c:319
+#, c-format
+msgid ""
+"refusing to delete: %s does not look like a wf domain. See 'wf help "
+"concepts'.\n"
+msgstr ""
+"%s は wf domain に見えないため削除を拒否しました。'wf help concepts' を参照し"
+"てください。\n"
+
+#: src/issue.c:910
+#, c-format
+msgid "requested condition is already invalid\n"
+msgstr "requested condition はすでに invalid です\n"
+
+#: src/main.c:600
+#, c-format
+msgid "unknown command: %s. See 'wf help' or 'wf help concepts'.\n"
+msgstr ""
+"不明なコマンドです: %s。'wf help' または 'wf help concepts' を参照してください。\n"
+
+#: src/main.c:508
+#, c-format
+msgid "unknown domain command: %s. See 'wf help concepts'.\n"
+msgstr ""
+"不明な domain command です: %s。'wf help concepts' を参照してください。\n"
+
+#: src/main.c:327
+#, c-format
+msgid "unknown env command: %s. See 'wf help semantics'.\n"
+msgstr ""
+"不明な env command です: %s。'wf help semantics' を参照してください。\n"
+
+#: src/issue.c:1420
+#, c-format
+msgid ""
+"unknown issue command: %s. See 'wf help semantics' or 'wf help concepts'.\n"
+msgstr ""
+"不明な issue command です: %s。'wf help semantics' または 'wf help concepts' "
+"を参照してください。\n"
+
+#: src/main.c:434
+#, c-format
+msgid "unknown user command: %s. See 'wf help concepts'.\n"
+msgstr ""
+"不明な user command です: %s。'wf help concepts' を参照してください。\n"
+
+#: src/auth.c:199
+#, c-format
+msgid ""
+"unknown user: %s. Create a User with 'wf user passwd %s User' or an "
+"Assistant with 'wf user create %s Assistant'.\n"
+msgstr ""
+"不明な user です: %s。'wf user passwd %s User' で User を作成するか、'wf "
+"user create %s Assistant' で Assistant を作成してください。\n"
+
+#: src/main.c:21
+#, c-format
+msgid "usage: %s COMMAND [ARGS...]\n"
+msgstr "使い方: %s COMMAND [ARGS...]\n"
+
+#: src/main.c:561
+#, c-format
+msgid "usage: wf --version\n"
+msgstr "使い方: wf --version\n"
+
+#: src/main.c:107
+#, c-format
+msgid "usage: wf domain COMMAND\n"
+msgstr "使い方: wf domain COMMAND\n"
+
+#: src/domain.c:261
+#, c-format
+msgid "usage: wf domain delete <id|short-id>\n"
+msgstr "使い方: wf domain delete <id|short-id>\n"
+
+#: src/main.c:73
+#, c-format
+msgid "usage: wf env COMMAND\n"
+msgstr "使い方: wf env COMMAND\n"
+
+#: src/main.c:340
+#, c-format
+msgid "usage: wf env clear\n"
+msgstr "使い方: wf env clear\n"
+
+#: src/main.c:334
+#, c-format
+msgid "usage: wf env export [USERNAME]\n"
+msgstr "使い方: wf env export [USERNAME]\n"
+
+#: src/main.c:62
+#, c-format
+msgid "usage: wf exec [USERNAME] [-- COMMAND [ARGS...]]\n"
+msgstr "使い方: wf exec [USERNAME] [-- COMMAND [ARGS...]]\n"
+
+#: src/issue.c:1110
+#, c-format
+msgid "usage: wf issue COMMAND [ARGS...]\n"
+msgstr "使い方: wf issue COMMAND [ARGS...]\n"
+
+#: src/issue.c:1211
+#, c-format
+msgid "usage: wf issue approve ISSUE_ID COMMENT\n"
+msgstr "使い方: wf issue approve ISSUE_ID COMMENT\n"
+
+#: src/issue.c:1245
+#, c-format
+msgid "usage: wf issue approve-partial ISSUE_ID CONDITION COMMENT\n"
+msgstr "使い方: wf issue approve-partial ISSUE_ID CONDITION COMMENT\n"
+
+#: src/issue.c:1228
+#, c-format
+msgid "usage: wf issue approve-with ISSUE_ID CONDITION COMMENT\n"
+msgstr "使い方: wf issue approve-with ISSUE_ID CONDITION COMMENT\n"
+
+#: src/issue.c:711
+#, c-format
+msgid "usage: wf issue clear-condition ISSUE_ID REASON\n"
+msgstr "使い方: wf issue clear-condition ISSUE_ID REASON\n"
+
+#: src/issue.c:997
+#, c-format
+msgid "usage: wf issue comment ISSUE_ID COMMENT\n"
+msgstr "使い方: wf issue comment ISSUE_ID COMMENT\n"
+
+#: src/issue.c:1348
+#, c-format
+msgid "usage: wf issue comments ISSUE_ID\n"
+msgstr "使い方: wf issue comments ISSUE_ID\n"
+
+#: src/issue.c:1189
+#, c-format
+msgid "usage: wf issue delete ISSUE_ID\n"
+msgstr "使い方: wf issue delete ISSUE_ID\n"
+
+#: src/issue.c:1296
+#, c-format
+msgid "usage: wf issue hold ISSUE_ID COMMENT\n"
+msgstr "使い方: wf issue hold ISSUE_ID COMMENT\n"
+
+#: src/issue.c:1313
+#, c-format
+msgid "usage: wf issue hold-with ISSUE_ID CONDITION COMMENT\n"
+msgstr "使い方: wf issue hold-with ISSUE_ID CONDITION COMMENT\n"
+
+#: src/issue.c:943
+#, c-format
+msgid "usage: wf issue invalidate ISSUE_ID REASON\n"
+msgstr "使い方: wf issue invalidate ISSUE_ID REASON\n"
+
+#: src/issue.c:885
+#, c-format
+msgid "usage: wf issue invalidate-condition ISSUE_ID REASON\n"
+msgstr "使い方: wf issue invalidate-condition ISSUE_ID REASON\n"
+
+#: src/issue.c:1262
+#, c-format
+msgid "usage: wf issue reject ISSUE_ID COMMENT\n"
+msgstr "使い方: wf issue reject ISSUE_ID COMMENT\n"
+
+#: src/issue.c:1279
+#, c-format
+msgid "usage: wf issue reject-with ISSUE_ID CONDITION COMMENT\n"
+msgstr "使い方: wf issue reject-with ISSUE_ID CONDITION COMMENT\n"
+
+#: src/issue.c:659
+#, c-format
+msgid "usage: wf issue request-condition ISSUE_ID CONDITION\n"
+msgstr "使い方: wf issue request-condition ISSUE_ID CONDITION\n"
+
+#: src/issue.c:834
+#, c-format
+msgid "usage: wf issue resume ISSUE_ID COMMENT\n"
+msgstr "使い方: wf issue resume ISSUE_ID COMMENT\n"
+
+#: src/issue.c:1175
+#, c-format
+msgid "usage: wf issue show ISSUE_ID\n"
+msgstr "使い方: wf issue show ISSUE_ID\n"
+
+#: src/issue.c:582
+#, c-format
+msgid "usage: wf issue update ISSUE_ID CONTENTS\n"
+msgstr "使い方: wf issue update ISSUE_ID CONTENTS\n"
+
+#: src/main.c:93
+#, c-format
+msgid "usage: wf user COMMAND\n"
+msgstr "使い方: wf user COMMAND\n"
+
+#: src/main.c:463
+#, c-format
+msgid "usage: wf user create USERNAME [User|Assistant]\n"
+msgstr "使い方: wf user create USERNAME [User|Assistant]\n"
+
+#: src/main.c:471
+#, c-format
+msgid "usage: wf user passwd USERNAME [User|Assistant]\n"
+msgstr "使い方: wf user passwd USERNAME [User|Assistant]\n"
+
+#: src/main.c:87
+#, c-format
+msgid "usage: wf version\n"
+msgstr "使い方: wf version\n"
+
+#: src/main.c:80
+#, c-format
+msgid "usage: wf whoami\n"
+msgstr "使い方: wf whoami\n"
+
+#: src/auth.c:145
+#, c-format
+msgid "user already exists: %s\n"
+msgstr "user はすでに存在します: %s\n"
+
+#: src/auth.c:361
+#, c-format
+msgid "wf exec shell returned: user=%s domain=%s\n"
+msgstr "wf exec shell が戻りました: user=%s domain=%s\n"
+
+#: src/auth.c:357
+#, c-format
+msgid "wf exec shell returned: user=%s domain=%s exit=%d\n"
+msgstr "wf exec shell が戻りました: user=%s domain=%s exit=%d\n"
+
+#: src/auth.c:359
+#, c-format
+msgid "wf exec shell returned: user=%s domain=%s signal=%d\n"
+msgstr "wf exec shell が戻りました: user=%s domain=%s signal=%d\n"
+
+#: src/auth.c:341
+#, c-format
+msgid "wf exec shell: user=%s domain=%s\n"
+msgstr "wf exec shell: user=%s domain=%s\n"

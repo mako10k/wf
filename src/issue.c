@@ -2,6 +2,7 @@
 
 #include "issue.h"
 
+#include "i18n.h"
 #include "storage.h"
 #include "util.h"
 
@@ -71,7 +72,7 @@ static int wf_issue_set_text(char **slot, const char *value)
     char *copy = wf_strdup(value);
 
     if (copy == NULL) {
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, _("out of memory\n"));
         return 1;
     }
     free(*slot);
@@ -90,7 +91,7 @@ static int wf_issue_init_defaults(struct wf_issue *issue)
     if (issue->content == NULL || issue->requested_condition == NULL ||
         issue->decision_condition == NULL || issue->decision_comment == NULL) {
         wf_issue_free(issue);
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, _("out of memory\n"));
         return 1;
     }
 
@@ -105,23 +106,23 @@ static int wf_issue_init_defaults(struct wf_issue *issue)
 static int wf_issue_validate(const struct wf_issue *issue)
 {
     if (!wf_valid_issue_state(issue->issue_state)) {
-        fprintf(stderr, "corrupt issue state: %s\n", issue->issue_state);
+        fprintf(stderr, _("corrupt issue state: %s\n"), issue->issue_state);
         return 1;
     }
     if (!wf_valid_requested_condition_state(issue->requested_condition_state)) {
-        fprintf(stderr, "corrupt requested condition state: %s\n", issue->requested_condition_state);
+        fprintf(stderr, _("corrupt requested condition state: %s\n"), issue->requested_condition_state);
         return 1;
     }
     if (!wf_valid_decision_type(issue->decision_type)) {
-        fprintf(stderr, "corrupt decision type: %s\n", issue->decision_type);
+        fprintf(stderr, _("corrupt decision type: %s\n"), issue->decision_type);
         return 1;
     }
     if (!wf_valid_decision_scope(issue->decision_scope)) {
-        fprintf(stderr, "corrupt decision scope: %s\n", issue->decision_scope);
+        fprintf(stderr, _("corrupt decision scope: %s\n"), issue->decision_scope);
         return 1;
     }
     if (!wf_valid_decision_basis(issue->decision_basis)) {
-        fprintf(stderr, "corrupt decision basis: %s\n", issue->decision_basis);
+        fprintf(stderr, _("corrupt decision basis: %s\n"), issue->decision_basis);
         return 1;
     }
     return 0;
@@ -132,12 +133,12 @@ static int wf_issue_path(const struct wf_domain *domain, const char *id, char *p
     int written;
 
     if (strstr(id, "/") != NULL || strlen(id) != 16) {
-        fprintf(stderr, "invalid issue id\n");
+        fprintf(stderr, _("invalid issue id\n"));
         return 1;
     }
     written = snprintf(path, size, "%s/%s.tsv", domain->issues, id);
     if (written < 0 || (size_t)written >= size) {
-        fprintf(stderr, "path too long\n");
+        fprintf(stderr, _("path too long\n"));
         return 1;
     }
     return 0;
@@ -148,12 +149,12 @@ static int wf_issue_comments_path(const struct wf_domain *domain, const char *id
     int written;
 
     if (strstr(id, "/") != NULL || strlen(id) != 16) {
-        fprintf(stderr, "invalid issue id\n");
+        fprintf(stderr, _("invalid issue id\n"));
         return 1;
     }
     written = snprintf(path, size, "%s/%s.comments.tsv", domain->issues, id);
     if (written < 0 || (size_t)written >= size) {
-        fprintf(stderr, "path too long\n");
+        fprintf(stderr, _("path too long\n"));
         return 1;
     }
     return 0;
@@ -171,16 +172,16 @@ int wf_issue_resolve_id(const struct wf_domain *domain, const char *partial, cha
     enum wf_match_result res;
 
     if (partial == NULL || partial[0] == '\0') {
-        fprintf(stderr, "missing issue id\n");
+        fprintf(stderr, _("missing issue id\n"));
         return 1;
     }
     plen = strlen(partial);
     if (strstr(partial, "/") != NULL) {
-        fprintf(stderr, "invalid issue id\n");
+        fprintf(stderr, _("invalid issue id\n"));
         return 1;
     }
     if (plen < 2) {
-        fprintf(stderr, "issue id too short (minimum 2 characters). See 'wf help semantics'.\n");
+        fprintf(stderr, _("issue id too short (minimum 2 characters). See 'wf help semantics'.\n"));
         return 1;
     }
 
@@ -216,10 +217,10 @@ int wf_issue_resolve_id(const struct wf_domain *domain, const char *partial, cha
         return 0;
     }
     if (res == WF_MATCH_AMBIGUOUS) {
-        fprintf(stderr, "ambiguous issue id: %s. See 'wf help semantics'.\n", partial);
+        fprintf(stderr, _("ambiguous issue id: %s. See 'wf help semantics'.\n"), partial);
         return 1;
     }
-    fprintf(stderr, "issue not found: %s. See 'wf help semantics'.\n", partial);
+    fprintf(stderr, _("issue not found: %s. See 'wf help semantics'.\n"), partial);
     return 1;
 }
 
@@ -245,13 +246,13 @@ static int wf_issue_load(const struct wf_domain *domain, const char *id, struct 
     file = fopen(path, "r");
     if (file == NULL) {
         wf_issue_free(issue);
-        fprintf(stderr, "issue not found: %s\n", id);
+        fprintf(stderr, _("issue not found: %s\n"), id);
         return 1;
     }
     if (fgets(line, sizeof(line), file) == NULL) {
         fclose(file);
         wf_issue_free(issue);
-        fprintf(stderr, "corrupt issue: %s\n", id);
+        fprintf(stderr, _("corrupt issue: %s\n"), id);
         return 1;
     }
     fclose(file);
@@ -259,7 +260,7 @@ static int wf_issue_load(const struct wf_domain *domain, const char *id, struct 
     field_count = wf_split_tsv(line, fields, 14);
     if (field_count != 8 && field_count != 14) {
         wf_issue_free(issue);
-        fprintf(stderr, "corrupt issue: %s\n", id);
+        fprintf(stderr, _("corrupt issue: %s\n"), id);
         return 1;
     }
     if (wf_unescape_field(fields[1], &content) != 0) {
@@ -445,7 +446,7 @@ static int wf_issue_add_action_comment(
     length = strlen(prefix) + 2 + strlen(text) + 1;
     message = malloc(length);
     if (message == NULL) {
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, _("out of memory\n"));
         return 1;
     }
     snprintf(message, length, "%s: %s", prefix, text);
@@ -461,7 +462,7 @@ static int wf_issue_create(const struct wf_domain *domain, const struct wf_user 
     char id[17];
 
     if (user->role != WF_ROLE_ASSISTANT) {
-        fprintf(stderr, "permission denied: only Assistant can create issues\n");
+        fprintf(stderr, _("permission denied: only Assistant can create issues\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 2, &content) != 0) {
@@ -486,7 +487,7 @@ static int wf_issue_create(const struct wf_domain *domain, const struct wf_user 
     issue.decision_comment = wf_strdup("");
     if (issue.requested_condition == NULL || issue.decision_condition == NULL || issue.decision_comment == NULL) {
         wf_issue_free(&issue);
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, _("out of memory\n"));
         return 1;
     }
     if (wf_time_now_iso(issue.created_at, sizeof(issue.created_at)) != 0) {
@@ -578,7 +579,7 @@ static int wf_issue_update(const struct wf_domain *domain, const struct wf_user 
     char full_id[65];
 
     if (argc < 4) {
-        fprintf(stderr, "usage: wf issue update ISSUE_ID CONTENTS\n");
+        fprintf(stderr, _("usage: wf issue update ISSUE_ID CONTENTS\n"));
         return 1;
     }
     if (wf_issue_resolve_id(domain, argv[2], full_id) != 0) {
@@ -589,12 +590,12 @@ static int wf_issue_update(const struct wf_domain *domain, const struct wf_user 
     }
     if (wf_streq(issue.issue_state, "invalid") || wf_streq(issue.issue_state, "closed")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "cannot update issue after it has reached a terminal state\n");
+        fprintf(stderr, _("cannot update issue after it has reached a terminal state\n"));
         return 1;
     }
     if (user->role != WF_ROLE_ASSISTANT || strcmp(issue.creator, user->username) != 0) {
         wf_issue_free(&issue);
-        fprintf(stderr, "permission denied: Assistant can update own issues only\n");
+        fprintf(stderr, _("permission denied: Assistant can update own issues only\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 3, &content) != 0) {
@@ -627,12 +628,12 @@ static int wf_issue_delete(const struct wf_domain *domain, const struct wf_user 
     }
     if (wf_streq(issue.issue_state, "invalid") || wf_streq(issue.issue_state, "closed")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "cannot delete issue after it has reached a terminal state\n");
+        fprintf(stderr, _("cannot delete issue after it has reached a terminal state\n"));
         return 1;
     }
     if (user->role != WF_ROLE_ASSISTANT || strcmp(issue.creator, user->username) != 0) {
         wf_issue_free(&issue);
-        fprintf(stderr, "permission denied: Assistant can delete own issues only\n");
+        fprintf(stderr, _("permission denied: Assistant can delete own issues only\n"));
         return 1;
     }
     wf_issue_free(&issue);
@@ -655,11 +656,11 @@ static int wf_issue_request_condition(const struct wf_domain *domain, const stru
     char full_id[65];
 
     if (argc < 4) {
-        fprintf(stderr, "usage: wf issue request-condition ISSUE_ID CONDITION\n");
+        fprintf(stderr, _("usage: wf issue request-condition ISSUE_ID CONDITION\n"));
         return 1;
     }
     if (user->role != WF_ROLE_ASSISTANT) {
-        fprintf(stderr, "permission denied: only Assistant can update requested conditions\n");
+        fprintf(stderr, _("permission denied: only Assistant can update requested conditions\n"));
         return 1;
     }
     if (wf_issue_resolve_id(domain, argv[2], full_id) != 0) {
@@ -670,17 +671,17 @@ static int wf_issue_request_condition(const struct wf_domain *domain, const stru
     }
     if (wf_streq(issue.issue_state, "invalid") || wf_streq(issue.issue_state, "closed")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "cannot update requested condition after the issue reached a terminal state\n");
+        fprintf(stderr, _("cannot update requested condition after the issue reached a terminal state\n"));
         return 1;
     }
     if (!wf_streq(issue.issue_state, "open")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "cannot update requested condition unless issue is open\n");
+        fprintf(stderr, _("cannot update requested condition unless issue is open\n"));
         return 1;
     }
     if (strcmp(issue.creator, user->username) != 0) {
         wf_issue_free(&issue);
-        fprintf(stderr, "permission denied: Assistant can update own issues only\n");
+        fprintf(stderr, _("permission denied: Assistant can update own issues only\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 3, &condition) != 0) {
@@ -707,11 +708,11 @@ static int wf_issue_clear_condition(const struct wf_domain *domain, const struct
     char full_id[65];
 
     if (argc < 4) {
-        fprintf(stderr, "usage: wf issue clear-condition ISSUE_ID REASON\n");
+        fprintf(stderr, _("usage: wf issue clear-condition ISSUE_ID REASON\n"));
         return 1;
     }
     if (user->role != WF_ROLE_ASSISTANT) {
-        fprintf(stderr, "permission denied: only Assistant can update requested conditions\n");
+        fprintf(stderr, _("permission denied: only Assistant can update requested conditions\n"));
         return 1;
     }
     if (wf_issue_resolve_id(domain, argv[2], full_id) != 0) {
@@ -722,17 +723,17 @@ static int wf_issue_clear_condition(const struct wf_domain *domain, const struct
     }
     if (wf_streq(issue.issue_state, "invalid") || wf_streq(issue.issue_state, "closed")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "cannot clear requested condition after the issue reached a terminal state\n");
+        fprintf(stderr, _("cannot clear requested condition after the issue reached a terminal state\n"));
         return 1;
     }
     if (!wf_streq(issue.issue_state, "open")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "cannot clear requested condition unless issue is open\n");
+        fprintf(stderr, _("cannot clear requested condition unless issue is open\n"));
         return 1;
     }
     if (strcmp(issue.creator, user->username) != 0) {
         wf_issue_free(&issue);
-        fprintf(stderr, "permission denied: Assistant can update own issues only\n");
+        fprintf(stderr, _("permission denied: Assistant can update own issues only\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 3, &reason) != 0) {
@@ -775,7 +776,7 @@ static int wf_issue_apply_decision(
     const char *condition = "";
 
     if (user->role != WF_ROLE_USER) {
-        fprintf(stderr, "permission denied: only User can change approval status\n");
+        fprintf(stderr, _("permission denied: only User can change approval status\n"));
         return 1;
     }
     if (wf_issue_resolve_id(domain, id, full_id) != 0) {
@@ -786,12 +787,12 @@ static int wf_issue_apply_decision(
     }
     if (wf_streq(issue.issue_state, "invalid") || wf_streq(issue.issue_state, "closed")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "cannot review issue after it has reached a terminal state\n");
+        fprintf(stderr, _("cannot review issue after it has reached a terminal state\n"));
         return 1;
     }
     if (!wf_streq(issue.issue_state, "open")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "cannot change review decision unless issue is open\n");
+        fprintf(stderr, _("cannot change review decision unless issue is open\n"));
         return 1;
     }
 
@@ -830,11 +831,11 @@ static int wf_issue_resume(const struct wf_domain *domain, const struct wf_user 
     char full_id[65];
 
     if (argc < 4) {
-        fprintf(stderr, "usage: wf issue resume ISSUE_ID COMMENT\n");
+        fprintf(stderr, _("usage: wf issue resume ISSUE_ID COMMENT\n"));
         return 1;
     }
     if (user->role != WF_ROLE_USER) {
-        fprintf(stderr, "permission denied: only User can change approval status\n");
+        fprintf(stderr, _("permission denied: only User can change approval status\n"));
         return 1;
     }
     if (wf_issue_resolve_id(domain, argv[2], full_id) != 0) {
@@ -845,7 +846,7 @@ static int wf_issue_resume(const struct wf_domain *domain, const struct wf_user 
     }
     if (!wf_streq(issue.issue_state, "hold")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "cannot resume issue unless it is on hold\n");
+        fprintf(stderr, _("cannot resume issue unless it is on hold\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 3, &comment) != 0) {
@@ -881,11 +882,11 @@ static int wf_issue_invalidate_condition(const struct wf_domain *domain, const s
     char full_id[65];
 
     if (argc < 4) {
-        fprintf(stderr, "usage: wf issue invalidate-condition ISSUE_ID REASON\n");
+        fprintf(stderr, _("usage: wf issue invalidate-condition ISSUE_ID REASON\n"));
         return 1;
     }
     if (user->role != WF_ROLE_USER) {
-        fprintf(stderr, "permission denied: only User can change approval status\n");
+        fprintf(stderr, _("permission denied: only User can change approval status\n"));
         return 1;
     }
     if (wf_issue_resolve_id(domain, argv[2], full_id) != 0) {
@@ -896,22 +897,22 @@ static int wf_issue_invalidate_condition(const struct wf_domain *domain, const s
     }
     if (wf_streq(issue.issue_state, "invalid") || wf_streq(issue.issue_state, "closed")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "cannot invalidate requested condition after the issue reached a terminal state\n");
+        fprintf(stderr, _("cannot invalidate requested condition after the issue reached a terminal state\n"));
         return 1;
     }
     if (issue.requested_condition[0] == '\0' && wf_streq(issue.requested_condition_state, "none")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "no requested condition to invalidate\n");
+        fprintf(stderr, _("no requested condition to invalidate\n"));
         return 1;
     }
     if (wf_streq(issue.requested_condition_state, "invalid")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "requested condition is already invalid\n");
+        fprintf(stderr, _("requested condition is already invalid\n"));
         return 1;
     }
     if (!wf_streq(issue.decision_type, "none") || wf_streq(issue.decision_basis, "as_requested")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "cannot invalidate requested condition after a review decision\n");
+        fprintf(stderr, _("cannot invalidate requested condition after a review decision\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 3, &reason) != 0) {
@@ -939,11 +940,11 @@ static int wf_issue_invalidate(const struct wf_domain *domain, const struct wf_u
     char full_id[65];
 
     if (argc < 4) {
-        fprintf(stderr, "usage: wf issue invalidate ISSUE_ID REASON\n");
+        fprintf(stderr, _("usage: wf issue invalidate ISSUE_ID REASON\n"));
         return 1;
     }
     if (user->role != WF_ROLE_USER) {
-        fprintf(stderr, "permission denied: only User can change approval status\n");
+        fprintf(stderr, _("permission denied: only User can change approval status\n"));
         return 1;
     }
     if (wf_issue_resolve_id(domain, argv[2], full_id) != 0) {
@@ -954,7 +955,7 @@ static int wf_issue_invalidate(const struct wf_domain *domain, const struct wf_u
     }
     if (wf_streq(issue.issue_state, "invalid") || wf_streq(issue.issue_state, "closed")) {
         wf_issue_free(&issue);
-        fprintf(stderr, "cannot invalidate issue after it has reached a terminal state\n");
+        fprintf(stderr, _("cannot invalidate issue after it has reached a terminal state\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 3, &reason) != 0) {
@@ -993,7 +994,7 @@ static int wf_issue_comment_cmd(const struct wf_domain *domain, const struct wf_
     char full_id[65];
 
     if (argc < 4) {
-        fprintf(stderr, "usage: wf issue comment ISSUE_ID COMMENT\n");
+        fprintf(stderr, _("usage: wf issue comment ISSUE_ID COMMENT\n"));
         return 1;
     }
     if (wf_issue_resolve_id(domain, argv[2], full_id) != 0) {
@@ -1106,52 +1107,52 @@ struct wf_issue_subcommand {
 
 void wf_issue_usage(FILE *fp)
 {
-    fprintf(fp, "usage: wf issue COMMAND [ARGS...]\n");
-    fprintf(fp, "  (COMMAND may be abbreviated to a unique prefix.)\n");
-    fprintf(fp, "  ISSUE_ID may be abbreviated to a unique prefix of 2 or more characters.\n");
+    fprintf(fp, _("usage: wf issue COMMAND [ARGS...]\n"));
+    fprintf(fp, _("  (COMMAND may be abbreviated to a unique prefix.)\n"));
+    fprintf(fp, _("  ISSUE_ID may be abbreviated to a unique prefix of 2 or more characters.\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  Entity: issue (standard list + CRUD + review actions)\n");
+    fprintf(fp, _("  Entity: issue (standard list + CRUD + review actions)\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  wf issue list\n");
-    fprintf(fp, "  wf issue create CONTENTS\n");
-    fprintf(fp, "  wf issue show ISSUE_ID\n");
-    fprintf(fp, "  wf issue update ISSUE_ID CONTENTS\n");
-    fprintf(fp, "  wf issue delete ISSUE_ID\n");
+    fprintf(fp, _("  wf issue list\n"));
+    fprintf(fp, _("  wf issue create CONTENTS\n"));
+    fprintf(fp, _("  wf issue show ISSUE_ID\n"));
+    fprintf(fp, _("  wf issue update ISSUE_ID CONTENTS\n"));
+    fprintf(fp, _("  wf issue delete ISSUE_ID\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  wf issue request-condition ISSUE_ID CONDITION\n");
-    fprintf(fp, "      Set or replace the requested condition while the issue is still open.\n");
-    fprintf(fp, "  wf issue clear-condition ISSUE_ID REASON\n");
-    fprintf(fp, "      Remove the requested condition while the issue is still open.\n");
+    fprintf(fp, _("  wf issue request-condition ISSUE_ID CONDITION\n"));
+    fprintf(fp, _("      Set or replace the requested condition while the issue is still open.\n"));
+    fprintf(fp, _("  wf issue clear-condition ISSUE_ID REASON\n"));
+    fprintf(fp, _("      Remove the requested condition while the issue is still open.\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  wf issue approve ISSUE_ID COMMENT\n");
-    fprintf(fp, "      Approve using the requested condition if one is active.\n");
-    fprintf(fp, "  wf issue approve-with ISSUE_ID CONDITION COMMENT\n");
-    fprintf(fp, "      Approve using a reviewer-supplied condition instead.\n");
-    fprintf(fp, "  wf issue approve-partial ISSUE_ID CONDITION COMMENT\n");
-    fprintf(fp, "      Approve only part of the request under a reviewer condition.\n");
-    fprintf(fp, "  wf issue reject ISSUE_ID COMMENT\n");
-    fprintf(fp, "      Reject using the requested condition if one is active.\n");
-    fprintf(fp, "  wf issue reject-with ISSUE_ID CONDITION COMMENT\n");
-    fprintf(fp, "      Reject using a reviewer-supplied condition instead.\n");
-    fprintf(fp, "  wf issue hold ISSUE_ID COMMENT\n");
-    fprintf(fp, "      Put the issue on hold using the requested condition if one is active.\n");
-    fprintf(fp, "  wf issue hold-with ISSUE_ID CONDITION COMMENT\n");
-    fprintf(fp, "      Put the issue on hold using a reviewer-supplied condition instead.\n");
-    fprintf(fp, "  wf issue resume ISSUE_ID COMMENT\n");
-    fprintf(fp, "      Return a held issue to open state.\n");
-    fprintf(fp, "  wf issue invalidate-condition ISSUE_ID REASON\n");
-    fprintf(fp, "      Invalidate only the requested condition and keep the issue itself active.\n");
-    fprintf(fp, "  wf issue invalidate ISSUE_ID REASON\n");
-    fprintf(fp, "      Mark the whole issue invalid.\n");
+    fprintf(fp, _("  wf issue approve ISSUE_ID COMMENT\n"));
+    fprintf(fp, _("      Approve using the requested condition if one is active.\n"));
+    fprintf(fp, _("  wf issue approve-with ISSUE_ID CONDITION COMMENT\n"));
+    fprintf(fp, _("      Approve using a reviewer-supplied condition instead.\n"));
+    fprintf(fp, _("  wf issue approve-partial ISSUE_ID CONDITION COMMENT\n"));
+    fprintf(fp, _("      Approve only part of the request under a reviewer condition.\n"));
+    fprintf(fp, _("  wf issue reject ISSUE_ID COMMENT\n"));
+    fprintf(fp, _("      Reject using the requested condition if one is active.\n"));
+    fprintf(fp, _("  wf issue reject-with ISSUE_ID CONDITION COMMENT\n"));
+    fprintf(fp, _("      Reject using a reviewer-supplied condition instead.\n"));
+    fprintf(fp, _("  wf issue hold ISSUE_ID COMMENT\n"));
+    fprintf(fp, _("      Put the issue on hold using the requested condition if one is active.\n"));
+    fprintf(fp, _("  wf issue hold-with ISSUE_ID CONDITION COMMENT\n"));
+    fprintf(fp, _("      Put the issue on hold using a reviewer-supplied condition instead.\n"));
+    fprintf(fp, _("  wf issue resume ISSUE_ID COMMENT\n"));
+    fprintf(fp, _("      Return a held issue to open state.\n"));
+    fprintf(fp, _("  wf issue invalidate-condition ISSUE_ID REASON\n"));
+    fprintf(fp, _("      Invalidate only the requested condition and keep the issue itself active.\n"));
+    fprintf(fp, _("  wf issue invalidate ISSUE_ID REASON\n"));
+    fprintf(fp, _("      Mark the whole issue invalid.\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  wf issue comment ISSUE_ID COMMENT\n");
-    fprintf(fp, "  wf issue comments ISSUE_ID\n");
-    fprintf(fp, "  wf issue search KEYWORD\n");
+    fprintf(fp, _("  wf issue comment ISSUE_ID COMMENT\n"));
+    fprintf(fp, _("  wf issue comments ISSUE_ID\n"));
+    fprintf(fp, _("  wf issue search KEYWORD\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "  Quote CONDITION, COMMENT, and REASON when they contain spaces.\n");
-    fprintf(fp, "  Example: wf issue approve-with 0123abcd \"only after canary passes\" \"looks acceptable\"\n");
+    fprintf(fp, _("  Quote CONDITION, COMMENT, and REASON when they contain spaces.\n"));
+    fprintf(fp, _("  Example: wf issue approve-with 0123abcd \"only after canary passes\" \"looks acceptable\"\n"));
     fprintf(fp, "\n");
-    fprintf(fp, "See 'wf help concepts' for the meaning of roles and ISSUE_ID abbreviation.\n");
+    fprintf(fp, _("See 'wf help concepts' for the meaning of roles and ISSUE_ID abbreviation.\n"));
 }
 
 static int ic_create(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
@@ -1171,7 +1172,7 @@ static int ic_show(const struct wf_domain *domain, const struct wf_user *user, i
 {
     (void)user;
     if (argc != 3) {
-        fprintf(stderr, "usage: wf issue show ISSUE_ID\n");
+        fprintf(stderr, _("usage: wf issue show ISSUE_ID\n"));
         return 1;
     }
     return wf_issue_show(domain, argv[2]);
@@ -1185,7 +1186,7 @@ static int ic_update(const struct wf_domain *domain, const struct wf_user *user,
 static int ic_delete(const struct wf_domain *domain, const struct wf_user *user, int argc, char **argv)
 {
     if (argc != 3) {
-        fprintf(stderr, "usage: wf issue delete ISSUE_ID\n");
+        fprintf(stderr, _("usage: wf issue delete ISSUE_ID\n"));
         return 1;
     }
     return wf_issue_delete(domain, user, argv[2]);
@@ -1207,7 +1208,7 @@ static int ic_approve(const struct wf_domain *domain, const struct wf_user *user
     int rc;
 
     if (argc < 4) {
-        fprintf(stderr, "usage: wf issue approve ISSUE_ID COMMENT\n");
+        fprintf(stderr, _("usage: wf issue approve ISSUE_ID COMMENT\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 3, &comment) != 0) {
@@ -1224,7 +1225,7 @@ static int ic_approve_with(const struct wf_domain *domain, const struct wf_user 
     int rc;
 
     if (argc < 5) {
-        fprintf(stderr, "usage: wf issue approve-with ISSUE_ID CONDITION COMMENT\n");
+        fprintf(stderr, _("usage: wf issue approve-with ISSUE_ID CONDITION COMMENT\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 4, &comment) != 0) {
@@ -1241,7 +1242,7 @@ static int ic_approve_partial(const struct wf_domain *domain, const struct wf_us
     int rc;
 
     if (argc < 5) {
-        fprintf(stderr, "usage: wf issue approve-partial ISSUE_ID CONDITION COMMENT\n");
+        fprintf(stderr, _("usage: wf issue approve-partial ISSUE_ID CONDITION COMMENT\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 4, &comment) != 0) {
@@ -1258,7 +1259,7 @@ static int ic_reject(const struct wf_domain *domain, const struct wf_user *user,
     int rc;
 
     if (argc < 4) {
-        fprintf(stderr, "usage: wf issue reject ISSUE_ID COMMENT\n");
+        fprintf(stderr, _("usage: wf issue reject ISSUE_ID COMMENT\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 3, &comment) != 0) {
@@ -1275,7 +1276,7 @@ static int ic_reject_with(const struct wf_domain *domain, const struct wf_user *
     int rc;
 
     if (argc < 5) {
-        fprintf(stderr, "usage: wf issue reject-with ISSUE_ID CONDITION COMMENT\n");
+        fprintf(stderr, _("usage: wf issue reject-with ISSUE_ID CONDITION COMMENT\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 4, &comment) != 0) {
@@ -1292,7 +1293,7 @@ static int ic_hold(const struct wf_domain *domain, const struct wf_user *user, i
     int rc;
 
     if (argc < 4) {
-        fprintf(stderr, "usage: wf issue hold ISSUE_ID COMMENT\n");
+        fprintf(stderr, _("usage: wf issue hold ISSUE_ID COMMENT\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 3, &comment) != 0) {
@@ -1309,7 +1310,7 @@ static int ic_hold_with(const struct wf_domain *domain, const struct wf_user *us
     int rc;
 
     if (argc < 5) {
-        fprintf(stderr, "usage: wf issue hold-with ISSUE_ID CONDITION COMMENT\n");
+        fprintf(stderr, _("usage: wf issue hold-with ISSUE_ID CONDITION COMMENT\n"));
         return 1;
     }
     if (wf_join_args(argc, argv, 4, &comment) != 0) {
@@ -1344,7 +1345,7 @@ static int ic_comments(const struct wf_domain *domain, const struct wf_user *use
 {
     (void)user;
     if (argc != 3) {
-        fprintf(stderr, "usage: wf issue comments ISSUE_ID\n");
+        fprintf(stderr, _("usage: wf issue comments ISSUE_ID\n"));
         return 1;
     }
     return wf_issue_comments(domain, argv[2]);
@@ -1411,12 +1412,12 @@ int wf_issue_command(const struct wf_domain *domain, const struct wf_user *user,
     }
 
     if (res == WF_MATCH_AMBIGUOUS) {
-        fprintf(stderr, "ambiguous issue command: %s. See 'wf help semantics'.\n", argv[1]);
+        fprintf(stderr, _("ambiguous issue command: %s. See 'wf help semantics'.\n"), argv[1]);
         wf_issue_usage(stderr);
         return 1;
     }
 
-    fprintf(stderr, "unknown issue command: %s. See 'wf help semantics' or 'wf help concepts'.\n", argv[1]);
+    fprintf(stderr, _("unknown issue command: %s. See 'wf help semantics' or 'wf help concepts'.\n"), argv[1]);
     wf_issue_usage(stderr);
     return 1;
 }

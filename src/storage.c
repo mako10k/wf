@@ -2,6 +2,8 @@
 
 #include "storage.h"
 
+#include "i18n.h"
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +18,7 @@ int wf_mkdir_p(const char *path)
     char *cursor;
 
     if (strlen(path) >= sizeof(buffer)) {
-        fprintf(stderr, "path too long\n");
+        fprintf(stderr, _("path too long\n"));
         return 1;
     }
     strcpy(buffer, path);
@@ -75,7 +77,7 @@ int wf_escape_field(const char *input, char **out)
     }
     escaped = malloc(length + 1);
     if (escaped == NULL) {
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, _("out of memory\n"));
         return 1;
     }
     writer = escaped;
@@ -109,7 +111,7 @@ int wf_unescape_field(const char *input, char **out)
 
     decoded = malloc(strlen(input) + 1);
     if (decoded == NULL) {
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, _("out of memory\n"));
         return 1;
     }
     writer = decoded;

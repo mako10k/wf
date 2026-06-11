@@ -15,6 +15,9 @@ case "$WF" in
   *) WF="$(cd "$(dirname "$WF")" && pwd)/$(basename "$WF")" ;;
 esac
 export WF
+export LANG=C
+export LC_ALL=C
+export LANGUAGE=C
 
 if [ ! -x "$WF" ]; then
   echo "wf binary not found or not executable at: $WF" >&2
