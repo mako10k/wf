@@ -45,10 +45,19 @@ out=$(LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" 
 printf '%s\n' "$out" | grep -q "意味規則:"
 printf '%s\n' "$out" | grep -q "DOMAIN の選択"
 
+echo "=== localized user and domain help use Japanese catalog ==="
+out=$(LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" "$WF" help user 2>&1)
+printf '%s\n' "$out" | grep -q "使い方: wf user COMMAND"
+printf '%s\n' "$out" | grep -q "エンティティ: user"
+
+out=$(LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" "$WF" help domain 2>&1)
+printf '%s\n' "$out" | grep -q "使い方: wf domain COMMAND"
+printf '%s\n' "$out" | grep -q "'domain' の説明は 'wf help concepts' と 'wf help semantics' を参照してください。"
+
 echo "=== localized issue help uses Japanese catalog ==="
 out=$(LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" "$WF" issue --help 2>&1)
 printf '%s\n' "$out" | grep -q "使い方: wf issue COMMAND \[ARGS...\]"
-printf '%s\n' "$out" | grep -q "requested condition が active の場合はそれを使って approve"
+printf '%s\n' "$out" | grep -q "requested condition が有効なら、その条件で承認します"
 if printf '%s\n' "$out" | grep -q "^usage: wf issue COMMAND \[ARGS...\]"; then
   echo "issue help still contains untranslated usage"
   exit 1
