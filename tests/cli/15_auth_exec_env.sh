@@ -80,6 +80,24 @@ if grep -q "^$token	assistant	Assistant$" "$DOMAIN_ROOT/sessions.tsv"; then
   exit 1
 fi
 
+echo "=== bare exec banners describe switching and restoring when nested ==="
+out=$(WF_EXEC_USER=outer WF_EXEC_DOMAIN=outerdom SHELL="$TESTROOT/fake-shell.sh" "$WF" exec assistant 2>"$TESTROOT/exec-banner-nested.err")
+token=$(printf '%s\n' "$out" | sed -n "s/^WF_TOKEN=\([0-9a-f][0-9a-f]*\)$/\1/p")
+if [ -z "$token" ]; then
+  echo "FAIL: expected nested bare exec child to inherit WF_TOKEN" >&2
+  exit 1
+fi
+grep -q '^WF_EXEC_USER=assistant$' "$TESTROOT/exec-banner-nested.err" && {
+  echo "FAIL: nested banner log unexpectedly captured child stdout" >&2
+  exit 1
+}
+grep -q '^wf exec shell: switched user: outer@outerdom -> assistant@' "$TESTROOT/exec-banner-nested.err"
+grep -q '^wf exec shell restored user: assistant@.* -> outer@outerdom exit=0$' "$TESTROOT/exec-banner-nested.err"
+if grep -q "^$token	assistant	Assistant$" "$DOMAIN_ROOT/sessions.tsv"; then
+  echo "FAIL: nested bare exec left its temporary session behind" >&2
+  exit 1
+fi
+
 echo "=== user env export requires a TTY for password input ==="
 printf 'user	User	%s	%s\n' \
   '0123456789abcdef0123456789abcdef' \

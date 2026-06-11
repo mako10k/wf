@@ -283,6 +283,76 @@ static int wf_auth_prepare_exec_shell_env(const struct wf_domain *domain, const 
     return 0;
 }
 
+static int wf_has_exec_context(const char *user, const char *domain)
+{
+    return (user != NULL && user[0] != '\0') || (domain != NULL && domain[0] != '\0');
+}
+
+static void wf_print_exec_shell_start_banner(
+    const char *previous_user,
+    const char *previous_domain,
+    const char *username,
+    const char *domain_id
+)
+{
+    if (wf_has_exec_context(previous_user, previous_domain)) {
+        fprintf(stderr,
+                _("wf exec shell: switched user: %s@%s -> %s@%s\n"),
+                (previous_user != NULL && previous_user[0] != '\0') ? previous_user : "?",
+                (previous_domain != NULL && previous_domain[0] != '\0') ? previous_domain : "?",
+                username,
+                domain_id);
+        return;
+    }
+
+    fprintf(stderr, _("wf exec shell: user=%s domain=%s\n"), username, domain_id);
+}
+
+static void wf_print_exec_shell_return_banner(
+    const char *previous_user,
+    const char *previous_domain,
+    const char *username,
+    const char *domain_id,
+    int status
+)
+{
+    if (wf_has_exec_context(previous_user, previous_domain)) {
+        if (WIFEXITED(status)) {
+            fprintf(stderr,
+                    _("wf exec shell restored user: %s@%s -> %s@%s exit=%d\n"),
+                    username,
+                    domain_id,
+                    (previous_user != NULL && previous_user[0] != '\0') ? previous_user : "?",
+                    (previous_domain != NULL && previous_domain[0] != '\0') ? previous_domain : "?",
+                    WEXITSTATUS(status));
+        } else if (WIFSIGNALED(status)) {
+            fprintf(stderr,
+                    _("wf exec shell restored user: %s@%s -> %s@%s signal=%d\n"),
+                    username,
+                    domain_id,
+                    (previous_user != NULL && previous_user[0] != '\0') ? previous_user : "?",
+                    (previous_domain != NULL && previous_domain[0] != '\0') ? previous_domain : "?",
+                    WTERMSIG(status));
+        } else {
+            fprintf(stderr,
+                    _("wf exec shell restored user: %s@%s -> %s@%s\n"),
+                    username,
+                    domain_id,
+                    (previous_user != NULL && previous_user[0] != '\0') ? previous_user : "?",
+                    (previous_domain != NULL && previous_domain[0] != '\0') ? previous_domain : "?" );
+        }
+        return;
+    }
+
+    if (WIFEXITED(status)) {
+        fprintf(stderr, _("wf exec shell returned: user=%s domain=%s exit=%d\n"), username, domain_id, WEXITSTATUS(status));
+    } else if (WIFSIGNALED(status)) {
+        fprintf(stderr, _("wf exec shell returned: user=%s domain=%s signal=%d\n"), username, domain_id, WTERMSIG(status));
+    } else {
+        fprintf(stderr, _("wf exec shell returned: user=%s domain=%s\n"), username, domain_id);
+    }
+}
+
 int wf_auth_env_export(const struct wf_domain *domain, const char *username)
 {
     char token[65];
@@ -309,10 +379,15 @@ int wf_auth_exec(const struct wf_domain *domain, const char *username, int argc,
 {
     char token[65];
     const char *shell;
+    const char *previous_exec_user;
+    const char *previous_exec_domain;
     pid_t child;
     int status;
     int wait_rc;
     int clear_rc;
+
+    previous_exec_user = getenv("WF_EXEC_USER");
+    previous_exec_domain = getenv("WF_EXEC_DOMAIN");
 
     if (wf_auth_open_session(domain, username, token) != 0) {
         return 1;
@@ -338,7 +413,7 @@ int wf_auth_exec(const struct wf_domain *domain, const char *username, int argc,
             if (wf_auth_prepare_exec_shell_env(domain, username) != 0) {
                 _exit(1);
             }
-            fprintf(stderr, _("wf exec shell: user=%s domain=%s\n"), username, domain->id);
+            wf_print_exec_shell_start_banner(previous_exec_user, previous_exec_domain, username, domain->id);
             execl(shell, shell, "-i", (char *)NULL);
             perror(shell);
             _exit(127);
@@ -353,13 +428,7 @@ int wf_auth_exec(const struct wf_domain *domain, const char *username, int argc,
     } while (wait_rc < 0 && errno == EINTR);
 
     if (wait_rc >= 0 && argc == 0) {
-        if (WIFEXITED(status)) {
-            fprintf(stderr, _("wf exec shell returned: user=%s domain=%s exit=%d\n"), username, domain->id, WEXITSTATUS(status));
-        } else if (WIFSIGNALED(status)) {
-            fprintf(stderr, _("wf exec shell returned: user=%s domain=%s signal=%d\n"), username, domain->id, WTERMSIG(status));
-        } else {
-            fprintf(stderr, _("wf exec shell returned: user=%s domain=%s\n"), username, domain->id);
-        }
+        wf_print_exec_shell_return_banner(previous_exec_user, previous_exec_domain, username, domain->id, status);
     }
 
     clear_rc = wf_auth_remove_session_token(domain, token);
