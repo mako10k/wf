@@ -4,6 +4,10 @@
 
 After building the binary (`make -C src` or `make` after configure):
 
+`make check` / `make test` also require gettext tools such as `msgfmt`,
+because the locale-aware CLI tests rebuild the Japanese message catalog before
+running.
+
 ```sh
 make check          # runs everything (unit + CLI)
 make test           # same
@@ -22,6 +26,12 @@ Individual scripts are executable:
 ```sh
 WF=src/wf tests/cli/30_issue_sub_prefix.sh
 ```
+
+The locale-specific CLI test `tests/cli/05_i18n_locale.sh` also requires a
+Japanese UTF-8 locale such as `ja_JP.UTF-8` to be generated on the host OS.
+If that locale is unavailable, the script skips instead of failing. This skip
+only covers the OS locale prerequisite; `make test` still expects gettext
+tooling to be installed so `make locale` can rebuild `po/locale/ja/LC_MESSAGES/wf.mo`.
 
 ## What is covered
 

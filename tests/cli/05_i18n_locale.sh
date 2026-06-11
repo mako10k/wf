@@ -11,6 +11,11 @@ if [ ! -f "$LOCALEDIR/ja/LC_MESSAGES/wf.mo" ]; then
   exit 0
 fi
 
+if ! locale -a | grep -qi '^ja_JP\.utf-\?8$'; then
+  echo "SKIP: ja_JP.UTF-8 locale is not available on this system"
+  exit 0
+fi
+
 echo "=== localized help uses Japanese catalog when WF_LOCALEDIR is set ==="
 out=$(LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" "$WF" help 2>&1)
 printf '%s\n' "$out" | grep -q "エンティティ:"
@@ -70,6 +75,16 @@ printf '%s\n' "$out" | grep -q "不明なコマンド"
 echo "=== localized ambiguous command error uses Japanese catalog ==="
 out=$(LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" "$WF" e 2>&1 || true)
 printf '%s\n' "$out" | grep -q "曖昧なコマンド"
+
+echo "=== localized user/domain subcommand errors use Japanese catalog ==="
+out=$(LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" "$WF" user xyzzy 2>&1 || true)
+printf '%s\n' "$out" | grep -q "不明な user command"
+
+out=$(LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" "$WF" domain c 2>&1 || true)
+printf '%s\n' "$out" | grep -q "曖昧な domain コマンド"
+
+out=$(LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" "$WF" domain xyzzy 2>&1 || true)
+printf '%s\n' "$out" | grep -q "不明な domain command"
 
 echo "=== localized issue auth error uses Japanese catalog ==="
 out=$(LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" "$WF" issue xyzzy 2>&1 || true)
