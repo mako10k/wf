@@ -6,7 +6,14 @@ WF=${WF:-../../src/wf}
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 LOCALEDIR="$ROOT/po/locale"
 
-if [ ! -f "$LOCALEDIR/ja/LC_MESSAGES/wf.mo" ]; then
+TESTROOT=$(mktemp -d)
+trap 'rm -rf "$TESTROOT"' EXIT
+
+if command -v msgfmt >/dev/null 2>&1; then
+  LOCALEDIR="$TESTROOT/locale"
+  mkdir -p "$LOCALEDIR/ja/LC_MESSAGES"
+  msgfmt -c -o "$LOCALEDIR/ja/LC_MESSAGES/wf.mo" "$ROOT/po/ja.po"
+elif [ ! -f "$LOCALEDIR/ja/LC_MESSAGES/wf.mo" ]; then
   echo "SKIP: compiled Japanese catalog not found at $LOCALEDIR/ja/LC_MESSAGES/wf.mo"
   exit 0
 fi
@@ -89,5 +96,32 @@ printf '%s\n' "$out" | grep -q "不明な domain command"
 echo "=== localized issue auth error uses Japanese catalog ==="
 out=$(LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" "$WF" issue xyzzy 2>&1 || true)
 printf '%s\n' "$out" | grep -q "ログインしていません"
+
+echo "=== localized exec shell banners use Japanese catalog ==="
+cat > "$TESTROOT/fake-shell.sh" <<'EOF'
+#!/bin/sh
+exit 0
+EOF
+chmod +x "$TESTROOT/fake-shell.sh"
+(
+  cd "$TESTROOT"
+  XDG_DATA_HOME="$TESTROOT/xdg" "$WF" domain create >/dev/null 2>&1 || true
+  LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" \
+    XDG_DATA_HOME="$TESTROOT/xdg" SHELL="$TESTROOT/fake-shell.sh" \
+    "$WF" exec assistant >/dev/null 2>"$TESTROOT/exec-banner.err"
+  LANG=ja_JP.UTF-8 LC_ALL=ja_JP.UTF-8 LANGUAGE=ja WF_LOCALEDIR="$LOCALEDIR" \
+    XDG_DATA_HOME="$TESTROOT/xdg" WF_EXEC_USER=outer WF_EXEC_DOMAIN=outerdom \
+    SHELL="$TESTROOT/fake-shell.sh" \
+    "$WF" exec assistant >/dev/null 2>"$TESTROOT/exec-banner-nested.err"
+)
+grep -q '^wf exec shell: user=assistant domain=' "$TESTROOT/exec-banner.err"
+grep -q '^wf exec shell: 戻りました: user=assistant domain=.* exit=0$' "$TESTROOT/exec-banner.err"
+grep -q '^wf exec shell: user を切り替えました: outer@outerdom -> assistant@' "$TESTROOT/exec-banner-nested.err"
+grep -q '^wf exec shell: user を復元しました: assistant@.* -> outer@outerdom exit=0$' "$TESTROOT/exec-banner-nested.err"
+if grep -q '^wf exec shell returned:\|^wf exec shell restored user:\|^wf exec shell: switched user:' \
+  "$TESTROOT/exec-banner.err" "$TESTROOT/exec-banner-nested.err"; then
+  echo "exec shell banners still contain untranslated English text"
+  exit 1
+fi
 
 echo "05_i18n_locale.sh: OK"
